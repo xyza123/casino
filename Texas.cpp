@@ -660,12 +660,7 @@ void draw_texas_bg(int status)
         al_draw_bitmap(bg_all_in, 0, 0, 0);
 }
 
-double check_win_rate(int current_round, card_set c)
-{
-    return 1;
-}
-
-// int AI_select_raise_amount(int budget_amount,double win_rate, int antes){
+// int AI_select_raise_amount(int budget_amount, double win_rate, int antes){
 //     if(win_rate <= 0.7){
 //         if(antes >= budget_amount)
 //             return antes * 0.5;
@@ -685,7 +680,7 @@ double check_win_rate(int current_round, card_set c)
 
 // int AI_select(int now_antes,double win_rate, int goal_antes)
 // {
-//     if(win_rate <= 0.4)
+//     if(win_rate <= 0.2)
 //         return FOLD;
 //     if(win_rate <= 0.6 && goal_antes == now_antes)
 //         return CALL;
@@ -694,21 +689,263 @@ double check_win_rate(int current_round, card_set c)
 //     return ALL_IN;
 // }
 
-// double check_win_rate(int current_round, card_set now_card){
-//     double win_rate;
-//     if(current_round == 0){
-//         bool color = false;
-//         bool pair = false;
-//         now_card.sort_out();
-//         if(now_card > )
-//     }
-//     else{
-//         for(int i=0;i<on_board.card_set.size();i++)
-//             now_card.push_back(on_board.card_set[i]);
-        
-//         return win_rate;
-//     }
-// }
+double check_win_rate(int current_round, card_set now_card){
+    double win_rate;
+    int score = 0;
+    if(current_round == 0){
+        now_card.sort_out();
+        if(now_card.card_set[0].color == now_card.card_set[1].color)
+            score += 200;
+        if(now_card.card_set[0].point == now_card.card_set[1].color)
+            score += 500;
+        score += now_card.card_set[0].point * 10;
+        score += now_card.card_set[1].point * 20;
+    }
+    else if(current_round == 1){
+        now_card.sort_out();
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 300;
+            represent_number = now_card.card_set[0].point;
+        }
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 500;
+                    else{
+                        score += 300;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                if(conti == 4)
+                    score += 100;
+                conti = 0;
+            }
+        }
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 1)
+                score += 50;
+            if(count == 2)
+                score += 500;
+            if(count == 3)
+                score += 100;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(now_card.card_set[i].color == color){
+                    score += 50;
+                    break;
+                }
+                else if(i = now_card.card_set.size()-1)
+                    score -= 300;
+            }
+        }
+        //單張加權
+        if(represent_number == 0){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    else if(current_round == 2){
+        now_card.sort_out();
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 200;
+            represent_number = now_card.card_set[0].point;
+        }
+
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 600;
+                    else{
+                        score += 200;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                if(conti == 4)
+                    score += 50;
+                conti = 0;
+            }
+        }
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 2)
+                score += 200;
+            if(count == 3)
+                score += 500;
+            if(count == 4)
+                represent_number = 0;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(now_card.card_set[i].color == color){
+                    score += 300;
+                    break;
+                }
+                else if(i = now_card.card_set.size()-1)
+                    score -= 400;
+            }
+        }
+        //單張加權
+        if(represent_number == 0){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    else if(current_round == 3){
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 100;
+            represent_number = now_card.card_set[0].point;
+        }
+
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 700;
+                    else{
+                        score += 100;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        bool flag = false;
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 4)
+                    flag = 1;
+                conti = 0;
+            }
+        }
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                conti = 0;
+            }
+        }
+        if(flag)
+            score -= 200;
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 2)
+                score += 200;
+            if(count == 3)
+                score += 500;
+            if(count == 4)
+                represent_number = 0;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(i = now_card.card_set.size()-1)
+                    score -= 1000;
+            }
+        }
+        //單張加權
+        if(represent_number == 0 || (now_card.card_set[1].point == now_card.card_set[0].point)){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    win_rate = score / 100;
+    if(win_rate > 1)
+        win_rate = 1;
+    return win_rate;
+}
 
 
 
