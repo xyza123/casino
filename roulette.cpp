@@ -7,8 +7,8 @@ int gambling_odd[9] = {35, 17, 11, 8, 1, 1, 2, 2, 1}; //賠率
 roulettle now_game;
 vector<roulettle_bet> all_bet;
 vector<pair<int, int>> bet_postion;
-vector<string> chip_set;                          // store the variable names of different chip img
-vector<pair<string, pair<int, int>>> drawing_set; // store the current on board (variable, (x, y))
+vector<ALLEGRO_BITMAP *> chip_set;                          // store the variable names of different chip img
+vector<pair<ALLEGRO_BITMAP *, pair<int, int>>> drawing_set; // store the current on board (variable, (x, y))
 vector<int> chip_in_hand;
 vector<pair<pair<pair<int, int>, pair<int, int>>, pair<int, int>>> board_bet_number; // referencing board_bet_number
 ALLEGRO_BITMAP *roulette = NULL;
@@ -22,6 +22,7 @@ ALLEGRO_BITMAP *gfchip = NULL;
 ALLEGRO_BITMAP *bfchip = NULL;
 ALLEGRO_BITMAP *bkfchip = NULL;
 int bet_length;
+int check_point;
 enum
 {
     NOTHING,
@@ -168,8 +169,10 @@ roulettle_bet::roulettle_bet(int amount, int type, vector<pair<int, int>> bet_nu
 
 void create_roulette_game(vector<player> all_player)
 {
-    init_chip_drawing_set();
+    // init_chip_drawing_set();
+    cout << "check point: " << check_point++;
     init_roulette_resources();
+    cout << "check point: " << check_point++;
     for (int i = 0; i < all_player.size(); i++)
     {
         player now_player = all_player[i];
@@ -180,6 +183,7 @@ void create_roulette_game(vector<player> all_player)
 
 void player_bet(player &now_player)
 {
+    cout << "check point: " << check_point++;
     bool done = false;
     bool start_spinning = false;
     int mouse_x, mouse_y;
@@ -190,27 +194,32 @@ void player_bet(player &now_player)
     double deg = 0;
     int count_spinning = 0;
     int bet_type;
+    ALLEGRO_BITMAP *floating_img = NULL;
     vector<pair<int, int>> covered_number;
     while (!done)
     {
+        cout << "check point: " << check_point++;
+
         al_wait_for_event(event_queue, &event);
         if (event.type == ALLEGRO_EVENT_MOUSE_AXES)
         {
             mouse_x = event.mouse.x;
             mouse_y = event.mouse.y;
         }
-        else if (event.type == AELLGRO_EVENT_MOUSE_BUTTON_DOWN)
+        else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
             mouse_position = check_mouse_range(mouse_x, mouse_y);
             if (event.mouse.button == MOUSE_RIGHT)
-                mouse_position = nothing;
-            if (mouse_position == nothing)
+                mouse_position = NOTHING;
+            if (mouse_position == NOTHING)
                 status = false;
             else if (mouse_position == IN_BOARD)
             {
-                drawing_set.push_back({floating_cursor, {mouse_x, mouse_y}});
-                roulettle_bet now_bet(bet_amount(floating_cursor), bet_type, &now_player, covered_number);
-                all_set.push_back(now_bet);
+                floating_img = al_load_bitmap(("./" + floating_cursor + ".png").c_str());
+                drawing_set.push_back({floating_img, {mouse_x, mouse_y}});
+                int amount = bet_amount(floating_cursor);
+                roulettle_bet now_bet(amount, bet_type, covered_number, now_player);
+                all_bet.push_back(now_bet);
             }
             else if (mouse_position == IN_NEW_BET_RANGE)
             {
@@ -223,7 +232,7 @@ void player_bet(player &now_player)
         }
         draw_roulette_table();
         if (status)
-            al_draw_bitmap(floating_cursor, mouse_x, mouse_y, 0);
+            al_draw_bitmap(floating_img, mouse_x, mouse_y, 0);
         al_draw_rotated_bitmap(roulette, 600, 598, -50, window_height + 100, 0, 0);
         al_flip_display();
         if (status)
@@ -269,14 +278,14 @@ bool is_in_new_bet_range(int x, int y)
     int tallest = 0;
     for (int i = 4; i >= 1; i--)
     {
-        auto it = chip_in_hand.find(i);
+        auto it = find(chip_in_hand.begin(), chip_in_hand.end(), i);
         if (it != chip_in_hand.end())
         {
             tallest = *it;
             break;
         }
     }
-    if (x >= 700 && x <= 1450 y >= 1200 - 31 * tallest && y <= 1200)
+    if (x >= 700 && x <= 1450 && y >= 1200 - 31 * tallest && y <= 1200)
         return true;
     else
         return false;
@@ -299,16 +308,15 @@ bool is_in_board_range(int x, int y)
 }
 string check_potential_chip_selection(int x, int y)
 {
-    int sc = 0;
     if (x >= 700 && x <= 880 && y >= 1200 - 31 * chip_in_hand[0] && y <= 1200)
-        sc = RCHIP;
+        return "rchip";
     else if (x >= 890 && x <= 1070 && y >= 1200 - 31 * chip_in_hand[1] && y <= 1200)
-        sc = BCHIP;
+        return "bchip";
     else if (x >= 1080 && x <= 1260 && y >= 1200 - 31 * chip_in_hand[2] && y <= 1200)
-        sc = BKCHIP;
+        return "bkchip";
     else if (x >= 1270 && x <= 1450 && y >= 1200 - 31 * chip_in_hand[3] && y <= 1200)
-        sc = GCHIP;
-    return chip_set[sc];
+        return "gchip";
+    return " ";
 }
 int check_mouse_range(int mouse_x, int mouse_y)
 {
@@ -318,8 +326,7 @@ int check_mouse_range(int mouse_x, int mouse_y)
         return IN_NEW_BET_RANGE;
     if (is_in_board_range(mouse_x, mouse_y))
         return IN_BOARD;
-    if (is_in_return_range(mouse_x, mouse_y))
-        return RETURN;
+
     return NOTHING;
 }
 void draw_roulette_table()
@@ -328,13 +335,13 @@ void draw_roulette_table()
     for (auto v : drawing_set)
         al_draw_bitmap(v.first, v.second.first - 50, v.second.second - 50, 0);
     for (int i = 1; i <= chip_in_hand[0]; i++)
-        al_draw_bitmap(chip_set[0], 700, 1200 - 31 * i);
+        al_draw_bitmap(chip_set[0], 700, 1200 - 31 * i, 0);
     for (int i = 1; i <= chip_in_hand[1]; i++)
-        al_draw_bitmap(chip_set[1], 890, 1200 - 31 * i);
+        al_draw_bitmap(chip_set[1], 890, 1200 - 31 * i, 0);
     for (int i = 1; i <= chip_in_hand[2]; i++)
-        al_draw_bitmap(chip_set[2], 1080, 1200 - 31 * i);
+        al_draw_bitmap(chip_set[2], 1080, 1200 - 31 * i, 0);
     for (int i = 1; i <= chip_in_hand[3]; i++)
-        al_draw_bitmap(chip_set[3], 1270, 1200 - 31 * i);
+        al_draw_bitmap(chip_set[3], 1270, 1200 - 31 * i, 0);
 }
 void init_roulette_resources()
 {
@@ -348,43 +355,46 @@ void init_roulette_resources()
     bfchip = al_load_bitmap("./chip_set/bfChip.png");
     bkfchip = al_load_bitmap("./chip_set/kfChip.png");
     gfchip = al_load_bitmap("./chip_set/gfChip.png");
-}
-
-void init_chip_drawing_set()
-{
     chip_set.clear();
-    chip_set.push_back("rfchip");
-    chip_set.push_back("bfchip");
-    chip_set.push_back("bkfchip");
-    chip_set.push_back("gfchip");
-    chip_set.push_back("rchip");
-    chip_set.push_back("bchip");
-    chip_set.push_back("bkchip");
-    chip_set.push_back("gchip");
+    chip_set.push_back(rfchip);
+    chip_set.push_back(bfchip);
+    chip_set.push_back(bkfchip);
+    chip_set.push_back(gfchip);
+    chip_set.push_back(rchip);
+    chip_set.push_back(bchip);
+    chip_set.push_back(bkchip);
+    chip_set.push_back(gchip);
 
     for (int i = 0; i < 4; i++)
         chip_in_hand.push_back(4);
 }
 
-int bet_amount(int chip_type)
+// void init_chip_drawing_set()
+// {
+//     chip_set.clear();
+//     chip_set.push_back("rfchip");
+//     chip_set.push_back("bfchip");
+//     chip_set.push_back("bkfchip");
+//     chip_set.push_back("gfchip");
+//     chip_set.push_back("rchip");
+//     chip_set.push_back("bchip");
+//     chip_set.push_back("bkchip");
+//     chip_set.push_back("gchip");
+
+//     for (int i = 0; i < 4; i++)
+//         chip_in_hand.push_back(4);
+// }
+
+int bet_amount(string chip_type)
 {
-    switch (chip_type)
-    {
-    case RCHIP:
+    if (chip_type == "rchip")
         return 100;
-        break;
-    case BCHIP:
+    if (chip_type == "bchip")
         return 500;
-        break;
-    case GCHIP:
+    if (chip_type == "gchip")
         return 1000;
-        break;
-    case BKCHIP:
+    if (chip_type == "bkchip")
         return 3000;
-        break;
-    default:
-        break;
-    }
     return 0;
 }
 
@@ -399,7 +409,7 @@ int check_bet_type(vector<pair<int, int>> bet)
             switch (bet[0].first)
             {
             case 0:
-                return SINGLE;
+                return SINGLE_C;
             case 1:
                 return ODD_AND_EVEN;
             case 2:
@@ -414,14 +424,14 @@ int check_bet_type(vector<pair<int, int>> bet)
                 break;
             }
         }
-        return SINGLE;
+        return SINGLE_C;
     }
     else if (bet.size() == 2)
         return SPLIT;
     else if (bet.size() == 3)
         return STREET;
     else if (bet.size() == 4)
-        return corner;
+        return CORNER;
 }
 
 void init_board_bet_number()

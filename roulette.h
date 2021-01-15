@@ -13,10 +13,10 @@ enum
 };
 enum
 {
-    SINGLE, // 1
-    SPLIT,  // 2
-    STREET, // 3
-    CORNER, // 4
+    SINGLE_C, // 1
+    SPLIT,    // 2
+    STREET,   // 3
+    CORNER,   // 4
     COLOR,
     ODD_AND_EVEN,
     TWELVE_NUMBER,
@@ -41,6 +41,7 @@ public:
 class roulettle_bet
 {
 public:
+    roulettle_bet(){};
     roulettle_bet(int amount, int type, vector<pair<int, int>> bet_number, player &now_player);
     int amount;
     int type;
@@ -52,10 +53,13 @@ void player_bet(player &now_player);
 void create_roulette_game(vector<player>);
 void init_roulette_resources();
 void draw_roulette_table();
-void init_chip_drawing_set();
+// void init_chip_drawing_set();
+int check_bet_type(vector<pair<int, int>>);
 string check_potential_chip_selection(int, int);
 vector<pair<int, int>> check_hovered(int, int);
-int bet_amount(int);
+int bet_amount(string);
 void draw_chip_in_hand();
+int check_mouse_range(int, int);
 pair<int, int> start_spinning();
+ALLEGRO_BITMAP *transformer(string);
 #endif
