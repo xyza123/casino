@@ -3,13 +3,7 @@
 #include "poker.h"
 #include "player.h"
 #include "global.h"
-#include <allegro5/allegro_primitives.h> //Our primitive header file
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_font.h>
+
 using namespace std;
 class Texas_player
 {
@@ -60,4 +54,5 @@ void init_poker_imgs(void);
 void draw_selection_window(int, int);
 void draw_texas_bg(int);
 double check_win_rate(card_set);
+void draw_AI_selection(Texas_player, int);
 #endif //TEXAS_H_INCLUDED

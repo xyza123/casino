@@ -15,13 +15,20 @@ vector<Texas_player> all_player;
 card_set on_board;
 card_set aboundant;
 deck pool;
+string user_name;
+int user_budget;
 int on_board_money;
-map<pair<int, int>, ALLEGRO_BITMAP *> poker_img; // poker_img[{point, color}] = bitmap
+bool all_rounds_over = false;
+map<pair<int, int>, ALLEGRO_BITMAP *> poker_img;       // poker_img[{point, color}] = bitmap
+map<pair<int, int>, ALLEGRO_BITMAP *> small_poker_img; // poker_img[{point, color}] = bitmap
 ALLEGRO_BITMAP *info = NULL;
 ALLEGRO_BITMAP *selection_window = NULL;
 ALLEGRO_BITMAP *bg_call = NULL;
 ALLEGRO_BITMAP *bg_check = NULL;
 ALLEGRO_BITMAP *bg_all_in = NULL;
+ALLEGRO_BITMAP *msg_bubble = NULL;
+ALLEGRO_BITMAP *user_name_pic = NULL;
+ALLEGRO_BITMAP *budget_pic = NULL;
 void Texas_player::add_bet(int amount)
 {
     if (!AI)
@@ -43,113 +50,14 @@ void Texas_player::add_bet(int amount)
     return;
 }
 
-/*
-Texas_player check_winner(Texas_player* remaining_player){
-    return winner;
-}
-*/
-
 void return_money(Texas_player *all_player)
 {
 }
-
-// void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
-// {
-//     init_poker_imgs();
-//     on_board_money = antes * (player_number + AI_number);
-//     pool.refresh_deck();
-//     for (int i = 0; i < player_number; i++)
-//     {
-//         Texas_player now(all[i], antes);
-//         all_player.push_back(now);
-//     }
-//     for (int i = 0; i < AI_number; i++)
-//     {
-//         Texas_player now(AI_budget, antes);
-//         all_player.push_back(now);
-//     }
-//     // ----------setting player's position-------------
-//     all_player[0].pos_x = 800;
-//     all_player[0].pos_y = 790;
-//     all_player[1].pos_x = 213;
-//     all_player[1].pos_y = 600;
-//     all_player[all_player.size() - 1].pos_x = 1385;
-//     all_player[all_player.size() - 1].pos_y = 600;
-//     int player_size = all_player.size();
-//     int t_length = board_right_x - board_left_x;
-//     double player_dist = (t_length - player_card_width * 2 * (player_size - 3)) / (player_size - 3 + 1);
-//     int px = board_left_x + player_dist;
-//     cout << player_dist;
-//     for (int i = 2; i < all_player.size() - 1; i++)
-//     {
-//         all_player[i].pos_x = px;
-//         all_player[i].pos_y = 360;
-//         px += player_dist + player_card_width * 2;
-//     }
-//     // -------------------------------------------------
-//     // unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-//     // shuffle(all_player.begin(), all_player.end(), default_random_engine(seed));
-//     int now_round = 0;
-//     bool flag;
-//     while (now_round <= 3)
-//     {
-//         if (now_round == 0)
-//         {
-//             for (int j = 0; j < 2; j++) // two cards
-//             {
-//                 for (int i = 0; i < all_player.size(); i++)
-//                 {
-//                     pool.licensing_card(all_player[i].own);
-//                     cout << all_player.size() << endl;
-//                 }
-//             }
-//             update_player_status(all_player);
-//             int now_ante = bet_round(antes, now_round);
-//             while (now_ante != antes)
-//             {
-//                 antes = now_ante;
-//                 now_ante = bet_round(antes, now_round);
-//             }
-//             now_round++;
-//         }
-//         else
-//         {
-//             if (now_round == 1)
-//             {
-//                 pool.licensing_card(aboundant);
-//                 for (int i = 0; i < 3; i++)
-//                 {
-//                     pool.licensing_card(on_board);
-//                 }
-//                 update_board(on_board);
-//                 cout << "current round: " << now_round << endl;
-//             }
-//             else
-//             {
-//                 pool.licensing_card(aboundant);
-//                 pool.licensing_card(on_board);
-//                 update_board(on_board);
-//                 cout << "current round: " << now_round << endl;
-//             }
-//             int now_ante = bet_round(antes, now_round);
-//             while (now_ante != antes)
-//             {
-//                 antes = now_ante;
-//                 now_ante = bet_round(antes, now_round);
-//                 cout << "hello" << endl;
-//             }
-//             now_round++;
-//         }
-//         flag = check_termination();
-//         if (flag)
-//             break;
-//     }
-//     endgame();
-//     return;
-// }
 void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
 {
     init_poker_imgs();
+    user_name = all.front().account;
+    user_budget = all.front().budget;
     on_board_money = antes * (player_number + AI_number);
     pool.refresh_deck();
     for (int i = 0; i < player_number; i++)
@@ -209,6 +117,9 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
                 if (now_player == all_player.size())
                     now_player = 0;
             }
+            draw_texas_bg(CHECK);
+            update_player_status(all_player);
+            update_board(on_board);
             now_round++;
         }
         else
@@ -239,17 +150,25 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
                 if (now_player == all_player.size())
                     now_player = 0;
             }
+            draw_texas_bg(CHECK);
+            update_player_status(all_player);
+            update_board(on_board);
             now_round++;
         }
         flag = check_termination();
         if (flag)
             break;
     }
+    all_rounds_over = true;
+    update_board(on_board);
+    update_player_status(all_player);
+    al_rest(5);
     endgame();
     return;
 }
 void endgame()
 {
+    // clear all player and the card set on board
 }
 
 bool check_termination()
@@ -265,46 +184,6 @@ bool check_termination()
     return true;
 }
 
-// int bet_round(int antes, int current_round)
-// {
-//     int select;
-//     for (int i = 0; i < all_player.size(); i++)
-//     {
-//         if (!all_player[i].AI)
-//         {
-//             judge_status(all_player[i], antes);
-//             select = player_select(current_round, all_player[i]); //check...
-//         }
-//         else
-//             select = AI_select(current_round);
-//         if (select == FOLD)
-//         {
-//             all_player[i].status = false;
-//             update_player_status(all_player);
-//         }
-//         else if (select == RAISE)
-//         {
-//             if (!all_player[i].AI)
-//             {
-//                 int raise_amount = select_raise_amount(all_player[i]); //
-//                 all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
-//                 antes = raise_amount;
-//             }
-//             else
-//             {
-//                 int raise_amount = AI_select_raise_amount(); //
-//                 all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
-//                 antes = raise_amount;
-//             }
-//         }
-//         else if (select == CALL)
-//         {
-//             all_player[i].add_bet(antes - all_player[i].bet_amount);
-//             update_player_status(all_player);
-//         }
-//     }
-//     return antes;
-// }
 pair<int, int> bet_round(int antes, int current_round, int now_player, int count)
 {
     int i = now_player;
@@ -326,6 +205,8 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
             {
                 AI_win_rate = check_win_rate(all_player[i].own);
                 select = AI_select(antes, AI_win_rate, all_player[i].AI_budget);
+                draw_AI_selection(all_player[i], select);
+                al_rest(1);
             }
         }
         if (select == FOLD)
@@ -343,6 +224,9 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
                 int raise_amount = AI_select_raise_amount(all_player[i].AI_budget, AI_win_rate, antes); //
             all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
             antes = raise_amount;
+            draw_texas_bg(CALL);
+            update_player_status(all_player);
+            update_board(on_board);
         }
         else if (select == CALL || select == CHECK)
         {
@@ -450,7 +334,6 @@ int select_raise_amount(Texas_player p)
         }
         else if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER)
             return raise_to;
-        // draw_selection_window(raise_to);
     } while (1);
     return p.bet_amount;
 }
@@ -490,8 +373,16 @@ void update_player_status(vector<Texas_player> players)
             }
             else
             {
-                al_draw_bitmap(poker_img[{0, 0}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
-                al_draw_bitmap(poker_img[{0, 0}], p.pos_x, p.pos_y - player_card_height, 0);
+                if (all_rounds_over)
+                {
+                    al_draw_bitmap(small_poker_img[{p.own.card_set[0].point, p.own.card_set[0].color}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
+                    al_draw_bitmap(small_poker_img[{p.own.card_set[1].point, p.own.card_set[1].color}], p.pos_x, p.pos_y - player_card_height, 0);
+                }
+                else
+                {
+                    al_draw_bitmap(poker_img[{0, 0}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
+                    al_draw_bitmap(poker_img[{0, 0}], p.pos_x, p.pos_y - player_card_height, 0);
+                }
             }
         }
     }
@@ -517,8 +408,11 @@ void init_poker_imgs()
         for (int j = 1; j <= 4; j++)
         {
             string s = "./card_set/" + to_string(i) + "_" + to_string(j) + ".png";
+            string s1 = "./ai_card_set/" + to_string(i) + "_" + to_string(j) + ".png";
             ALLEGRO_BITMAP *card = al_load_bitmap(s.c_str());
+            ALLEGRO_BITMAP *card1 = al_load_bitmap(s1.c_str());
             poker_img[{i, j}] = card;
+            small_poker_img[{i, j}] = card1;
         }
     }
     ALLEGRO_BITMAP *card = al_load_bitmap("./card_set/red_back.png");
@@ -528,6 +422,9 @@ void init_poker_imgs()
     bg_call = al_load_bitmap("./texas_bg_call.png");
     bg_check = al_load_bitmap("./texas_bg_check.png");
     bg_all_in = al_load_bitmap("./texas_bg_all_in.png");
+    msg_bubble = al_load_bitmap("./msg_bubble.png");
+    user_name_pic = al_load_bitmap("./user_name.png");
+    budget_pic = al_load_bitmap("./budget.png");
 }
 
 void draw_selection_window(int target, int status)
@@ -548,9 +445,31 @@ void draw_texas_bg(int status)
         al_draw_bitmap(bg_check, 0, 0, 0);
     else if (status == ALL_IN)
         al_draw_bitmap(bg_all_in, 0, 0, 0);
+    al_draw_bitmap(user_name_pic, 0, 0, 0);
+    al_draw_bitmap(budget_pic, 10, 170, 0);
+    al_draw_textf(XL_font, al_map_rgb(255, 255, 255), 200, 30, ALLEGRO_ALIGN_CENTRE, "%s", user_name.c_str());
+    al_draw_textf(XL_font, al_map_rgb(0, 0, 0), 105, 195, 0, "%d", user_budget);
 }
 
 double check_win_rate(card_set c)
 {
     return 1;
+}
+
+void draw_AI_selection(Texas_player p, int selection)
+{
+    string str = "error";
+    if (selection == CALL)
+        str = "CALL";
+    else if (selection == FOLD)
+        str = "FOLD";
+    else if (selection == ALL_IN)
+        str = "ALL_IN";
+    else if (selection == CHECK)
+        str = "CHECK";
+    else if (selection == RAISE)
+        str = "RAISE";
+    al_draw_bitmap(msg_bubble, p.pos_x - 170, p.pos_y - 150, 0);
+    al_draw_textf(Large_font, al_map_rgb(0, 0, 0), p.pos_x - 70, p.pos_y - 90, ALLEGRO_ALIGN_CENTRE, "%s", str.c_str());
+    al_flip_display();
 }

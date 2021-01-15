@@ -27,6 +27,8 @@ void GameWindow::game_init()
     logInMsg = al_load_bitmap("./msg_pic/log_in_msg.png");
     lobbyBg = al_load_bitmap("./background_pic/lobby_bg.psd");
     gameMode = al_load_bitmap("./background_pic/vegas_game_mode.psd");
+    game_start = al_load_bitmap("./game_start.png");
+
     al_set_display_icon(display, icon);
     al_reserve_samples(3);
 
@@ -189,6 +191,7 @@ int GameWindow::game_run()
     else if (window == LOBBY)
     {
         judge_next_window[2] = false;
+        judge_next_window[7] = false;
         draw_lobby_scene();
         main_user.account = userName;
         main_user.password = password;
@@ -205,6 +208,8 @@ int GameWindow::game_run()
                 texas_table_call = al_load_bitmap("texas_bg_call.png");
                 texas_table_check = al_load_bitmap("texas_bg_check.png");
                 texas_table_all_in = al_load_bitmap("texas_bg_all_in.png");
+                user_name_p = al_load_bitmap("./user_name.png");
+                budget_p = al_load_bitmap("./budget.png");
                 texas_timer = al_create_timer(1.0 / FPS);
                 al_register_event_source(event_queue, al_get_timer_event_source(texas_timer));
             }
@@ -212,6 +217,8 @@ int GameWindow::game_run()
             {
                 window = ROULETTE;
                 roulette_timer = al_create_timer(1.0 / FPS);
+                roulette_table = al_load_bitmap("./roulette_board.png");
+                roulette = al_load_bitmap("./roulette.png");
                 al_register_event_source(event_queue, al_get_timer_event_source(roulette_timer));
             }
             else if (judge_next_window[6])
@@ -225,11 +232,33 @@ int GameWindow::game_run()
     else if (window == TEXAS)
     {
         judge_next_window[4] = false;
+        al_draw_bitmap(game_start, 0, 0, 0);
+        al_flip_display();
+        al_rest(3);
         draw_texas_table(CALL);
         al_start_timer(texas_timer);
         if (!al_is_event_queue_empty(event_queue))
         {
             error = Texas_event();
+            if (judge_next_window[7])
+            {
+                window = LOBBY;
+            }
+        }
+    }
+    else if (window == ROULETTE)
+    {
+        al_start_timer(roulette_timer);
+        judge_next_window[5] = false;
+        draw_roulette_table();
+        al_flip_display();
+        if (!al_is_event_queue_empty(event_queue))
+        {
+            error = Roulette_event();
+            if (judge_next_window[7])
+            {
+                window = LOBBY;
+            }
         }
     }
 
@@ -606,12 +635,31 @@ int GameWindow::Texas_event()
         player_list.push_back(main_user);
         create_game(player_list, starting_bet[0], 4, main_user.story_level, main_user.budget);
     }
-    al_flip_display();
-    draw_texas_table(CHECK);
+    judge_next_window[7] = true;
+    // al_flip_display();
+    // draw_texas_table(CHECK);
     return instruction;
 }
+
 int GameWindow::Roulette_event()
 {
+    int instruction = GAME_CONTINUE;
+    if (game_mode == SINGLE)
+    {
+        player sg_player("Visitor", "1111", 100000, -1, 1);
+        sg_player.is_main_user = true;
+        vector<player> player_list;
+        player_list.push_back(sg_player);
+        create_roulette_game(player_list);
+    }
+    else if (game_mode == MULTI)
+    {
+    }
+    else if (game_mode == STORY)
+    {
+    }
+    judge_next_window[7] = true;
+    return instruction;
 }
 int GameWindow::Blackjack_event()
 {
@@ -664,4 +712,14 @@ void GameWindow::draw_texas_table(int status)
         al_draw_bitmap(texas_table_check, 0, 0, 0);
     else if (status == ALL_IN)
         al_draw_bitmap(texas_table_all_in, 0, 0, 0);
+    al_draw_bitmap(user_name_p, 0, 0, 0);
+    al_draw_bitmap(budget_p, 10, 170, 0);
+    al_draw_textf(XL_font, al_map_rgb(255, 255, 255), 200, 30, ALLEGRO_ALIGN_CENTRE, "%s", userName.c_str());
+    al_draw_textf(XL_font, al_map_rgb(0, 0, 0), 105, 195, 0, "%d", main_user.budget);
+}
+
+void GameWindow::draw_roulette_table()
+{
+    al_draw_bitmap(roulette_table, 0, 0, 0);
+    al_draw_rotated_bitmap(roulette, 600, 598, -50, window_height + 100, 0, 0);
 }

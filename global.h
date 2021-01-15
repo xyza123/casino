@@ -1,8 +1,13 @@
 #ifndef GLOBAL_H_INCLUDED
 #define GLOBAL_H_INCLUDED
 
+#include <allegro5/allegro_primitives.h> //Our primitive header file
 #include <allegro5/allegro_font.h>
-
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_font.h>
 #define font_size 12
 #define grid_width 40
 #define grid_height 40
