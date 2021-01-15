@@ -50,9 +50,12 @@ void Texas_player::add_bet(int amount)
     return;
 }
 
-void return_money(Texas_player *all_player)
+void return_money(int winner, int amount)
 {
+    all_player[winner].connected_player->budget += amount;
+    return;
 }
+
 void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
 {
     init_poker_imgs();
@@ -166,9 +169,256 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
     endgame();
     return;
 }
-void endgame()
+
+void endgame(int round)
 {
-    // clear all player and the card set on board
+    int total_return_money = 0;
+    for(int i=0;i<all_player.size();i++)
+        total_return_money += all_player[i].bet_amount;
+    if(round != 4){
+        int winner;
+        for(int i=0;i<all_player.size();i++){
+            if(all_player[i].status)
+                winner = i;
+        }
+        return_money(winner, total_return_money);
+        return;
+    }
+    sort(all_player.begin(), all_player.end(), card_set_compare);
+    int now_player = 0;
+    while(1){
+        if(all_player[now_player].status){
+            int will_get = all_player[now_player].bet_amount * all_player.size();
+            if(will_get >= total_return_money){
+                return_money(now_player, total_return_money);
+                break;
+            }
+            else{
+                total_return_money -= will_get;
+                return_money(now_player, will_get);
+                now_player++;
+            }
+        }
+    }
+    return;
+}
+
+int card_set_compare(Texas_player &a, Texas_player &b){
+    card_set A = a.own;
+    card_set B = b.own;
+    for(int i=0;i<on_board.card_set.size();i++){
+        A.card_set.push_back(on_board.card_set[i]);
+        B.card_set.push_back(on_board.card_set[i]);
+    }
+    pair<int, int> compare_A = {0,0};
+    pair<int, int> compare_B = {0,0};
+    for(int i=0;i<6;i++){
+        for(int j=i+1;j<7;j++){
+            card_set copy_set_A = A;
+            card_set copy_set_B = B;
+            card_set real_set_A;
+            card_set real_set_B;
+            copy_set_A.card_set[i].point = -1;
+            copy_set_A.card_set[j].point = -1;
+            copy_set_B.card_set[i].point = -1;
+            copy_set_B.card_set[j].point = -1;
+            pair<int, int> now_compare_A = {0,0};
+            pair<int, int> now_compare_B = {0,0};
+            for(int k=0;k<7;k++){
+                if(copy_set_A.card_set[k].point != -1)
+                    real_set_A.card_set.push_back(copy_set_A.card_set[k]);
+                if(copy_set_B.card_set[k].point != -1)
+                    real_set_B.card_set.push_back(copy_set_B.card_set[k]);
+            }
+            while(1){
+                if(straight_flush(real_set_A).first){
+                    now_compare_A.first = 8;
+                    now_compare_A.second = straight_flush(real_set_A).second;
+                    break;
+                }
+                if(four_of_a_kind(real_set_A).first){
+                    now_compare_A.first = 7;
+                    now_compare_A.second = four_of_a_kind(real_set_A).second;
+                    break;
+                }
+                if(full_house(real_set_A).first){
+                    now_compare_A.first = 6;
+                    now_compare_A.second = full_house(real_set_A).second;
+                    break;
+                }
+                if(flush(real_set_A).first){
+                    now_compare_A.first = 5;
+                    now_compare_A.second = flush(real_set_A).second;
+                    break;
+                }
+                if(straight(real_set_A).first){
+                    now_compare_A.first = 4;
+                    now_compare_A.second = straight(real_set_A).second;
+                    break;
+                }
+                if(three_of_a_kind(real_set_A).first){
+                    now_compare_A.first = 3;
+                    now_compare_A.second = three_of_a_kind(real_set_A).second;
+                    break;
+                }
+                if(two_pair(real_set_A).first){
+                    now_compare_A.first = 2;
+                    now_compare_A.second = two_pair(real_set_A).second;
+                    break;
+                }
+                if(one_pair(real_set_A).first){
+                    now_compare_A.first = 1;
+                    now_compare_A.second = one_pair(real_set_A).second;
+                    break;
+                }
+                if(high_card(real_set_A).first){
+                    now_compare_A.first = 0;
+                    now_compare_A.second = high_card(real_set_A).second;
+                    break;
+                }
+            }
+            while(1){
+                if(straight_flush(real_set_B).first){
+                    now_compare_B.first = 8;
+                    now_compare_B.second = straight_flush(real_set_B).second;
+                    break;
+                }
+                if(four_of_a_kind(real_set_B).first){
+                    now_compare_B.first = 7;
+                    now_compare_B.second = four_of_a_kind(real_set_B).second;
+                    break;
+                }
+                if(full_house(real_set_B).first){
+                    now_compare_B.first = 6;
+                    now_compare_B.second = full_house(real_set_B).second;
+                    break;
+                }
+                if(flush(real_set_B).first){
+                    now_compare_B.first = 5;
+                    now_compare_B.second = flush(real_set_B).second;
+                    break;
+                }
+                if(straight(real_set_B).first){
+                    now_compare_B.first = 4;
+                    now_compare_B.second = straight(real_set_B).second;
+                    break;
+                }
+                if(three_of_a_kind(real_set_B).first){
+                    now_compare_B.first = 3;
+                    now_compare_B.second = three_of_a_kind(real_set_B).second;
+                    break;
+                }
+                if(two_pair(real_set_B).first){
+                    now_compare_B.first = 2;
+                    now_compare_B.second = two_pair(real_set_B).second;
+                    break;
+                }
+                if(one_pair(real_set_B).first){
+                    now_compare_B.first = 1;
+                    now_compare_B.second = one_pair(real_set_B).second;
+                    break;
+                }
+                if(high_card(real_set_B).first){
+                    now_compare_B.first = 0;
+                    now_compare_B.second = high_card(real_set_B).second;
+                    break;
+                }
+            }
+            if(now_compare_A.first > compare_A.first || (now_compare_A.first == compare_A.first && compare_A.second < now_compare_A.second)){
+                compare_A.first = now_compare_A.first;
+                compare_A.second = now_compare_A.second;
+            }
+            if(now_compare_B.first > compare_B.first || (now_compare_B.first == compare_B.first && compare_B.second < now_compare_B.second)){
+                compare_B.first = now_compare_B.first;
+                compare_B.second = now_compare_B.second;
+            }
+        }
+    }
+    if(compare_A.first > compare_B.first || compare_A.first == compare_B.first && compare_A.second > compare_B.second)
+        return 1;
+    if(compare_A.first == compare_B.first && compare_A.second == compare_B.second){
+        return double_check(A, B, compare_A.first, compare_A.second);
+    }
+    return 0;
+}
+
+int double_check(card_set A, card_set B, int type, int represent_number){
+    int own_A[14] = {0};
+    int own_B[14] = {0};
+    if(type != 5){
+        for(int i=0;i<A.card_set.size();i++){
+            own_A[A.card_set[i].point] ++;
+            own_B[B.card_set[i].point] ++;
+        }
+    }
+    if(type == 8){
+        return 1;
+    }
+    if(type == 7){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] != 0 && own_B[i] == 0)
+                    return 1;
+                else if(own_A[i] == 0 && own_B[i] != 0)
+                    return 0;
+            }
+        }
+        return 1;
+    }
+    if(type == 6){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] == 2 && own_B[i] < 2)
+                    return 1;
+                else if(own_A[i] < 2 && own_B[i] == 2)
+                    return 0;
+            }
+        }
+        return 1;
+    }
+    if(type == 5){
+        int color = 0;
+        for(int j=1;j<=4;j++){
+            int count = 0;
+            for(int i=0;i<A.card_set.size();i++){
+                if(A.card_set[i].color == j){
+                    count++;
+                }
+                if(count == 5)
+                color = j;
+                break;
+            }
+            if(color != 0)
+                break;
+        }
+        for(int i=0;i<A.card_set.size();i++){
+            if(A.card_set[i].color == color)
+                own_A[A.card_set[i].point] ++;
+            if(B.card_set[i].color == color)
+                own_B[B.card_set[i].point] ++;
+        }
+        for(int i=13;i>0;i--){
+            if(own_A[i] != 0 && own_B[i] == 0)
+                return 1;
+            if(own_A[i] == 0 && own_B[i] != 0)
+                return 0;
+        }
+        return 1;
+    }
+    if(type == 4){
+        return 1;
+    }
+    if(type <= 3){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] != 0 && own_B[i] == 0)
+                    return 1;
+                else if(own_A[i] == 0 && own_B[i] != 0)
+                    return 0;
+            }
+        }
+        return 1;
+    }
 }
 
 bool check_termination()
@@ -203,10 +453,8 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
         {
             if (all_player[i].AI_budget > 0)
             {
-                AI_win_rate = check_win_rate(all_player[i].own);
-                select = AI_select(antes, AI_win_rate, all_player[i].AI_budget);
-                draw_AI_selection(all_player[i], select);
-                al_rest(1);
+                AI_win_rate = check_win_rate(current_round, all_player[i].own);
+                select = AI_select(antes, AI_win_rate, all_player[i]);
             }
         }
         if (select == FOLD)
@@ -338,16 +586,6 @@ int select_raise_amount(Texas_player p)
     return p.bet_amount;
 }
 
-int AI_select_raise_amount(int budget_amount, double win_rate, int antes)
-{
-    return 1;
-}
-
-int AI_select(int now_antes, double win_rate, int goal_antes)
-{
-    return 0;
-}
-
 void update_player_status(vector<Texas_player> players)
 {
     for (auto p : players)
@@ -451,25 +689,435 @@ void draw_texas_bg(int status)
     al_draw_textf(XL_font, al_map_rgb(0, 0, 0), 105, 195, 0, "%d", user_budget);
 }
 
-double check_win_rate(card_set c)
-{
-    return 1;
+int AI_select_raise_amount(int budget_amount, double win_rate, int antes){
+    if(win_rate <= 0.7){
+        if(antes >= budget_amount)
+            return antes * 1.5;
+        return budget_amount * 0.3 + antes;
+    }
+    if(win_rate <= 0.8){
+        if(antes >= budget_amount)
+            return antes * 1.7;
+        return budget_amount * 0.6 + antes;
+    }
+    if(win_rate <= 0.9){
+        if(antes >= budget_amount)
+            return antes * 2;
+        return budget_amount * 0.8 + antes;
+    }
 }
 
-void draw_AI_selection(Texas_player p, int selection)
+int AI_select(int now_antes,double win_rate, Texas_player now_AI)
 {
-    string str = "error";
-    if (selection == CALL)
-        str = "CALL";
-    else if (selection == FOLD)
-        str = "FOLD";
-    else if (selection == ALL_IN)
-        str = "ALL_IN";
-    else if (selection == CHECK)
-        str = "CHECK";
-    else if (selection == RAISE)
-        str = "RAISE";
-    al_draw_bitmap(msg_bubble, p.pos_x - 170, p.pos_y - 150, 0);
-    al_draw_textf(Large_font, al_map_rgb(0, 0, 0), p.pos_x - 70, p.pos_y - 90, ALLEGRO_ALIGN_CENTRE, "%s", str.c_str());
-    al_flip_display();
+    srand(time(NULL));
+    int randint = rand();
+    randint %= 100;
+    double p = randint / 100;
+    win_rate = win_rate / 2 + p / 2;
+    int goal_antes = (now_AI.AI_budget + now_AI.bet_amount) * win_rate;
+    if(win_rate <= 0.2)
+        return FOLD;
+    if(win_rate <= 0.6 && goal_antes < now_antes)
+        return CALL;
+    if(win_rate <= 0.9)
+        return RAISE;
+    return ALL_IN;
+}
+
+double check_win_rate(int current_round, card_set now_card){
+    double win_rate;
+    int score = 0;
+    if(current_round == 0){
+        now_card.sort_out();
+        if(now_card.card_set[0].color == now_card.card_set[1].color)
+            score += 200;
+        if(now_card.card_set[0].point == now_card.card_set[1].color)
+            score += 500;
+        score += now_card.card_set[0].point * 10;
+        score += now_card.card_set[1].point * 20;
+    }
+    else if(current_round == 1){
+        now_card.sort_out();
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 300;
+            represent_number = now_card.card_set[0].point;
+        }
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 500;
+                    else{
+                        score += 300;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                if(conti == 4)
+                    score += 100;
+                conti = 0;
+            }
+        }
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 1)
+                score += 50;
+            if(count == 2)
+                score += 500;
+            if(count == 3)
+                score += 100;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(now_card.card_set[i].color == color){
+                    score += 50;
+                    break;
+                }
+                else if(i = now_card.card_set.size()-1)
+                    score -= 300;
+            }
+        }
+        //單張加權
+        if(represent_number == 0){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    else if(current_round == 2){
+        now_card.sort_out();
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 200;
+            represent_number = now_card.card_set[0].point;
+        }
+
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 600;
+                    else{
+                        score += 200;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                if(conti == 4)
+                    score += 50;
+                conti = 0;
+            }
+        }
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 2)
+                score += 200;
+            if(count == 3)
+                score += 500;
+            if(count == 4)
+                represent_number = 0;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(now_card.card_set[i].color == color){
+                    score += 300;
+                    break;
+                }
+                else if(i = now_card.card_set.size()-1)
+                    score -= 400;
+            }
+        }
+        //單張加權
+        if(represent_number == 0){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    else if(current_round == 3){
+        int represent_number = 0;
+        //重複牌加權
+        if(now_card.card_set[0].point == now_card.card_set[1].point){
+            score += 100;
+            represent_number = now_card.card_set[0].point;
+        }
+
+        for(int i=0;i<on_board.card_set.size();i++){
+            for(int j=0;j<now_card.card_set.size();j++){
+                if(on_board.card_set[i].point == now_card.card_set[j].point){
+                    if(represent_number == now_card.card_set[j].point)
+                        score += 700;
+                    else{
+                        score += 100;
+                        represent_number = now_card.card_set[j].point;
+                    }
+                }
+            }
+        }
+        //順子加權
+        int own[14];
+        bool flag = false;
+        for(int i=0;i<on_board.card_set.size();i++)
+            own[on_board.card_set[i].point]++;
+        int conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 4)
+                    flag = 1;
+                conti = 0;
+            }
+        }
+        for(int i=0;i<now_card.card_set.size();i++)
+            own[now_card.card_set[i].point]++;
+        conti = 0;
+        for(int i=0;i<13;i++){
+            if(own[i] != 0){
+                conti++;
+            }
+            else{
+                if(conti == 5)
+                    return 1;
+                conti = 0;
+            }
+        }
+        if(flag)
+            score -= 200;
+        //同花加權
+        if(now_card.card_set[0].color == now_card.card_set[1].color){
+            int count = 0;
+            for(int i=0;i<on_board.card_set.size();i++){
+                if(on_board.card_set[i].color == now_card.card_set[0].color)
+                    count++;
+            }
+            if(count == 2)
+                score += 200;
+            if(count == 3)
+                score += 500;
+            if(count == 4)
+                represent_number = 0;
+        }
+        bool same_color = true;
+        int color = 0;
+        for(int i=1;i<on_board.card_set.size();i++){
+            if(on_board.card_set[i].color != on_board.card_set[i-1].color)
+                same_color = false;
+            else
+                color = on_board.card_set[i-1].color;
+        }
+        if(same_color){
+            for(int i=0;i<now_card.card_set.size();i++){
+                if(i = now_card.card_set.size()-1)
+                    score -= 1000;
+            }
+        }
+        //單張加權
+        if(represent_number == 0 || (now_card.card_set[1].point == now_card.card_set[0].point)){
+            score += now_card.card_set[0].point * 8;
+            score += now_card.card_set[1].point * 15;
+        }
+    }
+    win_rate = score / 100;
+    if(win_rate > 1)
+        win_rate = 1;
+    return win_rate;
+}
+
+
+
+pair<bool,int> straight_flush(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.color != now_card.color || now_card.point != last_card.point - 1)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,last_card.point};
+}
+
+pair<bool,int> four_of_a_kind(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            count++;
+        else
+            count = 1;
+        last_card = now_card;
+        if(count == 4)
+            return {true, last_card.point};
+    }
+    return {false, 0}; 
+}
+
+pair<bool,int> full_house(card_set now_card_set){
+    now_card_set.sort_out();
+    int status = 1;
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    int save_pt;
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(now_card.point == last_card.point && status == 1)
+            count++;
+        else if(status == 1){
+            if(count == 2)
+                save_pt = now_card.point;
+            if(count == 3)
+                save_pt = last_card.point;
+            else
+                return {false, 0};
+            status = 2;
+        }
+        if(now_card.point != last_card.point && status == 2)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,save_pt};   
+}
+
+pair<bool,int> flush(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.color == now_card.color){
+            last_card = now_card;
+            continue;
+        }
+        return {false, 0};
+    }
+    return {true, last_card.point};
+}
+
+pair<bool,int> straight(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(now_card.point != last_card.point - 1)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,last_card.point};
+}
+
+pair<bool,int> three_of_a_kind(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            count++;
+        else
+            count = 1;
+        last_card = now_card;
+        if(count == 3)
+            return {true, last_card.point};
+    }
+    return {false, 0}; 
+}
+////
+pair<bool,int> two_pair(card_set now_card_set){
+    now_card_set.sort_out();
+    int own_pt[14] = {0};
+    int count = 0;
+    int save_pt;
+    for(int i=0;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        own_pt[now_card.point]++;
+    }
+    for(int i=0;i<13;i++){
+        if(own_pt[i] == 2){
+            count++;
+            save_pt = i;
+        }
+    }
+    if(count == 2){
+        return {true, save_pt};
+    }
+    return {false, 0};
+}
+////
+pair<bool,int> one_pair(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[4];
+    for(int i=3;i>=0;i--){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            return {true, last_card.point};
+        else
+        last_card = now_card;
+    }
+    return {false, 0}; 
+}
+
+pair<bool,int> high_card(card_set now_card_set){
+    now_card_set.sort_out();
+    return {true, now_card_set.card_set[4].point};
 }

@@ -16,14 +16,14 @@ public:
                //   C     D     H     S
 };
 
-class card_set : poker_card
+class card_set
 {
 public:
     void sort_out();
     vector<poker_card> card_set;
 };
 
-class deck : poker_card
+class deck
 {
 public:
     deck();

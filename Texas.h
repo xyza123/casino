@@ -38,21 +38,31 @@ public:
     bool is_main_user = false;
 };
 // functions declaration
-void return_money(Texas_player *all_player);
+void return_money(int, int);
 int select_raise_amount(Texas_player);
 int AI_select_raise_amount(int, double, int);
 pair<int, int> bet_round(int, int, int, int);
 bool check_termination(void);
-void endgame(void);
+void endgame(int);
 void judge_status(Texas_player &, int);
 int player_select(Texas_player &);
-int AI_select(int, double, int);
+int AI_select(int, double, Texas_player);
 void create_game(vector<player> &, int, int, int, int);
 void update_player_status(vector<Texas_player>);
 void update_board(card_set);
 void init_poker_imgs(void);
 void draw_selection_window(int, int);
 void draw_texas_bg(int);
-double check_win_rate(card_set);
-void draw_AI_selection(Texas_player, int);
+double check_win_rate(int ,card_set);
+int card_set_compare(Texas_player &, Texas_player &);
+pair<bool, int> straight_flush(card_set);
+pair<bool, int> four_of_a_kind(card_set);
+pair<bool, int> full_house(card_set);
+pair<bool, int> flush(card_set);
+pair<bool, int> straight(card_set);
+pair<bool, int> three_of_a_kind(card_set);
+pair<bool, int> two_pair(card_set);
+pair<bool, int> one_pair(card_set);
+pair<bool, int> high_card(card_set);
+int double_check(card_set, card_set, int, int);
 #endif //TEXAS_H_INCLUDED
