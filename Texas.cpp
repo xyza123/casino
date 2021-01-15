@@ -413,3 +413,180 @@ double check_win_rate(card_set c)
 {
     return 1;
 }
+
+// int AI_select_raise_amount(int budget_amount,double win_rate, int antes){
+//     if(win_rate <= 0.7){
+//         if(antes >= budget_amount)
+//             return antes * 0.5;
+//         return budget_amount * 0.3;
+//     }
+//     if(win_rate <= 0.8){
+//         if(antes >= budget_amount)
+//             return antes * 0.7;
+//         return budget_amount * 0.6;
+//     }
+//     if(win_rate <= 0.9){
+//         if(antes >= budget_amount)
+//             return antes * 1;
+//         return budget_amount * 0.8;
+//     }
+// }
+
+// int AI_select(int now_antes,double win_rate, int goal_antes)
+// {
+//     if(win_rate <= 0.4)
+//         return FOLD;
+//     if(win_rate <= 0.6 && goal_antes == now_antes)
+//         return CALL;
+//     if(win_rate <= 0.9)
+//         return RAISE;
+//     return ALL_IN;
+// }
+
+// double check_win_rate(card_set now_card){
+//     double win_rate;
+//     for(int i=0;i<on_board.card_set.size();i++)
+//         now_card.push_back(on_board.card_set[i]);
+    
+//     return win_rate;
+// }
+
+
+
+pair<bool,int> straight_flush(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.color != now_card.color || now_card.point != last_card.point - 1)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,last_card.point};
+}
+
+pair<bool,int> four_of_a_kind(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            count++;
+        else
+            count = 1;
+        last_card = now_card;
+        if(count == 4)
+            return {true, last_card.point};
+    }
+    return {false, 0}; 
+}
+
+pair<bool,int> full_house(card_set now_card_set){
+    now_card_set.sort_out();
+    int status = 1;
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    int save_pt;
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(now_card.point == last_card.point && status == 1)
+            count++;
+        else if(status == 1){
+            if(count == 2)
+                save_pt = now_card.point;
+            if(count == 3)
+                save_pt = last_card.point;
+            else
+                return {false, 0};
+            status = 2;
+        }
+        if(now_card.point != last_card.point && status == 2)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,save_pt};   
+}
+
+pair<bool,int> flush(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.color == now_card.color){
+            last_card = now_card;
+            continue;
+        }
+        return {false, 0};
+    }
+    return {true, last_card.point};
+}
+
+pair<bool,int> straight(card_set now_card_set){
+    now_card_set.sort_out();
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(now_card.point != last_card.point - 1)
+            return {false, 0};
+        last_card = now_card;
+    }
+    return {true,last_card.point};
+}
+
+pair<bool,int> three_of_a_kind(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[0];
+    for(int i=1;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            count++;
+        else
+            count = 1;
+        last_card = now_card;
+        if(count == 3)
+            return {true, last_card.point};
+    }
+    return {false, 0}; 
+}
+////
+pair<bool,int> two_pair(card_set now_card_set){
+    now_card_set.sort_out();
+    int own_pt[14] = {0};
+    int count = 0;
+    int save_pt;
+    for(int i=0;i<5;i++){
+        poker_card now_card = now_card_set.card_set[i];
+        own_pt[now_card.point]++;
+    }
+    for(int i=0;i<n;i++){
+        if(own_pt[i] == 2){
+            count++;
+            save_pt = i;
+        }
+    }
+    if(count == 2){
+        return {true, save_pt};
+    }
+    return {false, 0};
+}
+////
+pair<bool,int> one_pair(card_set now_card_set){
+    now_card_set.sort_out();
+    int count = 1;
+    poker_card last_card = now_card_set.card_set[4];
+    for(int i=3;i>=0;i--){
+        poker_card now_card = now_card_set.card_set[i];
+        if(last_card.point == now_card.point)
+            return {true, last_card.point};
+        else
+        last_card = now_card;
+    }
+    return {false, 0}; 
+}
+
+pair<bool,int> high_card(card_set now_card_set){
+    now_card_set.sort_out();
+    return {true, now_card_set.card_set[4].point};
+}
