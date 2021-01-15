@@ -60,4 +60,14 @@ void init_poker_imgs(void);
 void draw_selection_window(int, int);
 void draw_texas_bg(int);
 double check_win_rate(int ,card_set);
+int card_set_compare(Texas_player &, Texas_player &);
+pair<bool, int> straight_flush(card_set);
+pair<bool, int> four_of_a_kind(card_set);
+pair<bool, int> full_house(card_set);
+pair<bool, int> flush(card_set);
+pair<bool, int> straight(card_set);
+pair<bool, int> three_of_a_kind(card_set);
+pair<bool, int> two_pair(card_set);
+pair<bool, int> one_pair(card_set);
+pair<bool, int> high_card(card_set);
 #endif //TEXAS_H_INCLUDED

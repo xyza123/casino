@@ -150,6 +150,7 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
     endgame(now_round);
     return;
 }
+
 void endgame(int round)
 {
     int total_return_money = 0;
@@ -197,16 +198,16 @@ int card_set_compare(Texas_player &a, Texas_player &b){
             card_set real_set_A;
             card_set real_set_B;
             copy_set_A.card_set[i].point = -1;
-            copy_set_A.card_set[j],point = -1;
+            copy_set_A.card_set[j].point = -1;
             copy_set_B.card_set[i].point = -1;
-            copy_set_B.card_set[j],point = -1;
+            copy_set_B.card_set[j].point = -1;
             pair<int, int> now_compare_A = {0,0};
             pair<int, int> now_compare_B = {0,0};
             for(int k=0;k<7;k++){
                 if(copy_set_A.card_set[k].point != -1)
-                    real_set_A.push_back(copy_set_A.card_set[k]);
+                    real_set_A.card_set.push_back(copy_set_A.card_set[k]);
                 if(copy_set_B.card_set[k].point != -1)
-                    real_set_B.push_back(copy_set_B.card_set[k]);
+                    real_set_B.card_set.push_back(copy_set_B.card_set[k]);
             }
             while(1){
                 if(straight_flush(real_set_A).first){
