@@ -187,10 +187,12 @@ void endgame(int round)
 int card_set_compare(Texas_player &a, Texas_player &b){
     card_set A = a.own;
     card_set B = b.own;
-    for(int i=0;i<on_board.card_set.size();i++)
+    for(int i=0;i<on_board.card_set.size();i++){
         A.card_set.push_back(on_board.card_set[i]);
-    pair<int, int> compare_A;
-    pair<int, int> compare_B;
+        B.card_set.push_back(on_board.card_set[i]);
+    }
+    pair<int, int> compare_A = {0,0};
+    pair<int, int> compare_B = {0,0};
     for(int i=0;i<6;i++){
         for(int j=i+1;j<7;j++){
             card_set copy_set_A = A;
@@ -315,7 +317,89 @@ int card_set_compare(Texas_player &a, Texas_player &b){
     }
     if(compare_A.first > compare_B.first || compare_A.first == compare_B.first && compare_A.second > compare_B.second)
         return 1;
+    if(compare_A.first == compare_B.first && compare_A.second == compare_B.second){
+        return double_check(A, B, compare_A.first, compare_A.second);
+    }
     return 0;
+}
+
+int double_check(card_set A, card_set B, int type, int represent_number){
+    int own_A[14] = {0};
+    int own_B[14] = {0};
+    if(type != 5){
+        for(int i=0;i<A.card_set.size();i++){
+            own_A[A.card_set[i].point] ++;
+            own_B[B.card_set[i].point] ++;
+        }
+    }
+    if(type == 8){
+        return 1;
+    }
+    if(type == 7){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] != 0 && own_B[i] == 0)
+                    return 1;
+                else if(own_A[i] == 0 && own_B[i] != 0)
+                    return 0;
+            }
+        }
+        return 1;
+    }
+    if(type == 6){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] == 2 && own_B[i] < 2)
+                    return 1;
+                else if(own_A[i] < 2 && own_B[i] == 2)
+                    return 0;
+            }
+        }
+        return 1;
+    }
+    if(type == 5){
+        int color = 0;
+        for(int j=1;j<=4;j++){
+            int count = 0;
+            for(int i=0;i<A.card_set.size();i++){
+                if(A.card_set[i].color == j){
+                    count++;
+                }
+                if(count == 5)
+                color = j;
+                break;
+            }
+            if(color != 0)
+                break;
+        }
+        for(int i=0;i<A.card_set.size();i++){
+            if(A.card_set[i].color == color)
+                own_A[A.card_set[i].point] ++;
+            if(B.card_set[i].color == color)
+                own_B[B.card_set[i].point] ++;
+        }
+        for(int i=13;i>0;i--){
+            if(own_A[i] != 0 && own_B[i] == 0)
+                return 1;
+            if(own_A[i] == 0 && own_B[i] != 0)
+                return 0;
+        }
+        return 1;
+    }
+    if(type == 4){
+        return 1;
+    }
+    if(type <= 3){
+        for(int i=13;i>0;i--){
+            if(i != represent_number){
+                if(own_A[i] != 0 && own_B[i] == 0)
+                    return 1;
+                else if(own_A[i] == 0 && own_B[i] != 0)
+                    return 0;
+            }
+        }
+        return 1;
+    }
 }
 
 bool check_termination()
