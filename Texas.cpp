@@ -166,7 +166,7 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
     update_board(on_board);
     update_player_status(all_player);
     al_rest(5);
-    endgame();
+    endgame(now_round);
     return;
 }
 
