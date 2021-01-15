@@ -560,7 +560,7 @@ pair<bool,int> two_pair(card_set now_card_set){
         poker_card now_card = now_card_set.card_set[i];
         own_pt[now_card.point]++;
     }
-    for(int i=0;i<n;i++){
+    for(int i=0;i<13;i++){
         if(own_pt[i] == 2){
             count++;
             save_pt = i;
