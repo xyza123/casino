@@ -230,6 +230,10 @@ int GameWindow::game_run()
         if (!al_is_event_queue_empty(event_queue))
         {
             error = Texas_event();
+            if (judge_next_window[7])
+            {
+                window = LOBBY;
+            }
         }
     }
 
@@ -606,6 +610,7 @@ int GameWindow::Texas_event()
         player_list.push_back(main_user);
         create_game(player_list, starting_bet[0], 4, main_user.story_level, main_user.budget);
     }
+    judge_next_window[7] = true;
     al_flip_display();
     draw_texas_table(CHECK);
     return instruction;

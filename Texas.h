@@ -60,5 +60,5 @@ void init_poker_imgs(void);
 void draw_selection_window(int, int);
 void draw_texas_bg(int);
 double check_win_rate(card_set);
-void draw_AI_selection();
+void draw_AI_selection(Texas_player, int);
 #endif //TEXAS_H_INCLUDED
