@@ -44,12 +44,12 @@ public:
     bool is_main_user = false;
 };
 // functions declaration
-void return_money(Texas_player *all_player);
+void return_money(int, int);
 int select_raise_amount(Texas_player);
 int AI_select_raise_amount(int, double, int);
 pair<int, int> bet_round(int, int, int, int);
 bool check_termination(void);
-void endgame(void);
+void endgame(int);
 void judge_status(Texas_player &, int);
 int player_select(Texas_player &);
 int AI_select(int, double, int);
@@ -59,5 +59,5 @@ void update_board(card_set);
 void init_poker_imgs(void);
 void draw_selection_window(int, int);
 void draw_texas_bg(int);
-double check_win_rate(card_set);
+double check_win_rate(int ,card_set);
 #endif //TEXAS_H_INCLUDED

@@ -43,9 +43,13 @@ void Texas_player::add_bet(int amount)
     return;
 }
 
-void return_money(Texas_player *all_player)
+void return_money(int winner, int amount)
 {
+    all_player[winner].connected_player->budget += amount;
+    all_player.clear();
+    return;
 }
+
 void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
 {
     init_poker_imgs();
@@ -144,12 +148,37 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
         if (flag)
             break;
     }
-    endgame();
+    endgame(now_round);
     return;
 }
-void endgame()
+void endgame(int round)
 {
+    if(round != 4){
+        int winner;
+        for(int i=0;i<all_player.size();i++){
+            if(all_player[i].status)
+                winner = i;
+        }
+        int total_return_money = 0;
+        for(int i=0;i<all_player.size();i++)
+            total_return_money += all_player[i].bet_amount;
+        return_money(winner, total_return_money);
+        return;
+    }
+    //sort(all_player.begin(), all_player.end(), card_set_compare);
+    return;
 }
+
+// int card_set_compare(Texas_player &a, Texas_player &b){
+//     card_set A = a.own;
+//     card_set B = b.own;
+//     for(int i=0;i<on_board.card_set.size();i++){
+
+//     }
+//     pair<bool, int> now_compare_A = straight_flush(A);
+//     pair<bool, int> now_compare_B = straight_flush(B);
+    
+// }
 
 bool check_termination()
 {
@@ -183,7 +212,7 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
         {
             if (all_player[i].AI_budget > 0)
             {
-                AI_win_rate = check_win_rate(all_player[i].own);
+                AI_win_rate = check_win_rate(current_round, all_player[i].own);
                 select = AI_select(antes, AI_win_rate, all_player[i].AI_budget);
             }
         }
@@ -409,7 +438,7 @@ void draw_texas_bg(int status)
         al_draw_bitmap(bg_all_in, 0, 0, 0);
 }
 
-double check_win_rate(card_set c)
+double check_win_rate(int current_round, card_set c)
 {
     return 1;
 }
@@ -443,12 +472,20 @@ double check_win_rate(card_set c)
 //     return ALL_IN;
 // }
 
-// double check_win_rate(card_set now_card){
+// double check_win_rate(int current_round, card_set now_card){
 //     double win_rate;
-//     for(int i=0;i<on_board.card_set.size();i++)
-//         now_card.push_back(on_board.card_set[i]);
-    
-//     return win_rate;
+//     if(current_round == 0){
+//         bool color = false;
+//         bool pair = false;
+//         now_card.sort_out();
+//         if(now_card > )
+//     }
+//     else{
+//         for(int i=0;i<on_board.card_set.size();i++)
+//             now_card.push_back(on_board.card_set[i]);
+        
+//         return win_rate;
+//     }
 // }
 
 
