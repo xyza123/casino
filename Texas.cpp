@@ -15,6 +15,8 @@ vector<Texas_player> all_player;
 card_set on_board;
 card_set aboundant;
 deck pool;
+string user_name;
+int user_budget;
 int on_board_money;
 bool all_rounds_over = false;
 map<pair<int, int>, ALLEGRO_BITMAP *> poker_img;       // poker_img[{point, color}] = bitmap
@@ -25,6 +27,8 @@ ALLEGRO_BITMAP *bg_call = NULL;
 ALLEGRO_BITMAP *bg_check = NULL;
 ALLEGRO_BITMAP *bg_all_in = NULL;
 ALLEGRO_BITMAP *msg_bubble = NULL;
+ALLEGRO_BITMAP *user_name_pic = NULL;
+ALLEGRO_BITMAP *budget_pic = NULL;
 void Texas_player::add_bet(int amount)
 {
     if (!AI)
@@ -52,6 +56,8 @@ void return_money(Texas_player *all_player)
 void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
 {
     init_poker_imgs();
+    user_name = all.front().account;
+    user_budget = all.front().budget;
     on_board_money = antes * (player_number + AI_number);
     pool.refresh_deck();
     for (int i = 0; i < player_number; i++)
@@ -417,6 +423,8 @@ void init_poker_imgs()
     bg_check = al_load_bitmap("./texas_bg_check.png");
     bg_all_in = al_load_bitmap("./texas_bg_all_in.png");
     msg_bubble = al_load_bitmap("./msg_bubble.png");
+    user_name_pic = al_load_bitmap("./user_name.png");
+    budget_pic = al_load_bitmap("./budget.png");
 }
 
 void draw_selection_window(int target, int status)
@@ -437,6 +445,10 @@ void draw_texas_bg(int status)
         al_draw_bitmap(bg_check, 0, 0, 0);
     else if (status == ALL_IN)
         al_draw_bitmap(bg_all_in, 0, 0, 0);
+    al_draw_bitmap(user_name_pic, 0, 0, 0);
+    al_draw_bitmap(budget_pic, 10, 170, 0);
+    al_draw_textf(XL_font, al_map_rgb(255, 255, 255), 200, 30, ALLEGRO_ALIGN_CENTRE, "%s", user_name.c_str());
+    al_draw_textf(XL_font, al_map_rgb(0, 0, 0), 105, 195, 0, "%d", user_budget);
 }
 
 double check_win_rate(card_set c)

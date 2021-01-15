@@ -51,6 +51,7 @@ public:
     void draw_msg_box(int);
     void draw_wheel_msg_box();
     void draw_texas_table(int);
+    void draw_roulette_table();
     // process of updated event
     int process_event();
     int log_in_event();
@@ -81,6 +82,11 @@ private:
     ALLEGRO_BITMAP *texas_table_call = NULL;
     ALLEGRO_BITMAP *texas_table_check = NULL;
     ALLEGRO_BITMAP *texas_table_all_in = NULL;
+    ALLEGRO_BITMAP *roulette_table = NULL;
+    ALLEGRO_BITMAP *roulette = NULL;
+    ALLEGRO_BITMAP *user_name_p = NULL;
+    ALLEGRO_BITMAP *budget_p = NULL;
+    ALLEGRO_BITMAP *game_start = NULL;
 
     ALLEGRO_DISPLAY *display = NULL;
     // ALLEGRO_FONT *font = NULL;

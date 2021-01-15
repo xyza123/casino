@@ -15,9 +15,9 @@ public:
         now_processing = now_processing;
         story_level = story_level;
     }
-    string account;
+    string account = "Visitor";
     string password;
-    int budget;
+    int budget = 100000;
     int now_processing; //story mode
     int story_level;
     bool is_main_user = false;
