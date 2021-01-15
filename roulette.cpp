@@ -436,31 +436,53 @@ int check_bet_type(vector<pair<int, int>> bet)
 
 void init_board_bet_number()
 {
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
-    board_bet_number.push_back({{{x1, y1}, {x2, y2}}, {0, GREEN}});
+    board_bet_number.push_back({{{290, 165}, {377, 575}}, {0, GREEN}});
+    board_bet_number.push_back({{{1080, 670}, {1257, 760}}, {1, GREEN}});
+    board_bet_number.push_back({{{553, 670}, {731, 760}}, {2, GREEN}});
+    board_bet_number.push_back({{{377, 573}, {731, 670}}, {3, GREEN}});
+    board_bet_number.push_back({{{731, 573}, {1080, 670}}, {4, GREEN}});
+    board_bet_number.push_back({{{1080, 573}, {1433, 670}}, {5, GREEN}});
+    board_bet_number.push_back({{{377, 670}, {553, 760}}, {6, GREEN}});
+    board_bet_number.push_back({{{1257, 670}, {1433, 760}}, {7, GREEN}});
+    board_bet_number.push_back({{{1433, 440}, {1522, 575}}, {8, GREEN}});
+    board_bet_number.push_back({{{1433, 300}, {1522, 440}}, {9, GREEN}});
+    board_bet_number.push_back({{{1433, 440}, {1522, 300}}, {10, GREEN}});
+    board_bet_number.push_back({{{377, 440}, {467, 575}}, {1, RED}});
+    board_bet_number.push_back({{{377, 300}, {467, 440}}, {2, BLACK}});
+    board_bet_number.push_back({{{377, 165}, {467, 300}}, {3, RED}});
+    board_bet_number.push_back({{{467, 440}, {553, 575}}, {4, BLACK}});
+    board_bet_number.push_back({{{467, 300}, {553, 440}}, {5, RED}});
+    board_bet_number.push_back({{{467, 165}, {553, 300}}, {6, BLACK}});
+    board_bet_number.push_back({{{553, 440}, {640, 575}}, {7, RED}});
+    board_bet_number.push_back({{{553, 300}, {640, 440}}, {8, BLACK}});
+    board_bet_number.push_back({{{553, 165}, {640, 300}}, {9, RED}});
+    board_bet_number.push_back({{{640, 440}, {731, 575}}, {10, BLACK}});
+    board_bet_number.push_back({{{640, 300}, {731, 440}}, {11, BLACK}});
+    board_bet_number.push_back({{{640, 165}, {731, 300}}, {12, RED}});
+    board_bet_number.push_back({{{731, 440}, {818, 575}}, {13, BLACK}});
+    board_bet_number.push_back({{{731, 300}, {818, 440}}, {14, RED}});
+    board_bet_number.push_back({{{731, 165}, {818, 300}}, {15, BLACK}});
+    board_bet_number.push_back({{{818, 440}, {905, 575}}, {16, RED}});
+    board_bet_number.push_back({{{818, 300}, {905, 440}}, {17, BLACK}});
+    board_bet_number.push_back({{{818, 165}, {905, 300}}, {18, RED}});
+    board_bet_number.push_back({{{905, 440}, {974, 575}}, {19, RED}});
+    board_bet_number.push_back({{{905, 300}, {974, 440}}, {20, BLACK}});
+    board_bet_number.push_back({{{905, 165}, {974, 300}}, {21, RED}});
+    board_bet_number.push_back({{{974, 440}, {1080, 575}}, {22, BLACK}});
+    board_bet_number.push_back({{{974, 300}, {1080, 440}}, {23, RED}});
+    board_bet_number.push_back({{{974, 165}, {1080, 300}}, {24, BLACK}});
+    board_bet_number.push_back({{{1080, 440}, {1169, 575}}, {25, RED}});
+    board_bet_number.push_back({{{1080, 300}, {1169, 440}}, {26, BLACK}});
+    board_bet_number.push_back({{{1080, 165}, {1169, 300}}, {27, RED}});
+    board_bet_number.push_back({{{1169, 440}, {1257, 575}}, {28, BLACK}});
+    board_bet_number.push_back({{{1169, 300}, {1257, 440}}, {29, BLACK}});
+    board_bet_number.push_back({{{1169, 165}, {1257, 300}}, {30, RED}});
+    board_bet_number.push_back({{{1257, 440}, {1346, 575}}, {31, BLACK}});
+    board_bet_number.push_back({{{1257, 300}, {1346, 440}}, {32, RED}});
+    board_bet_number.push_back({{{1257, 165}, {1346, 300}}, {33, BLACK}});
+    board_bet_number.push_back({{{1346, 440}, {1433, 575}}, {34, RED}});
+    board_bet_number.push_back({{{1346, 300}, {1433, 440}}, {35, BLACK}});
+    board_bet_number.push_back({{{1346, 165}, {1433, 300}}, {36, RED}});
 }
 
 // color green:
@@ -470,6 +492,11 @@ void init_board_bet_number()
 //     3: 1st twelve
 //     4: 2nd twelve
 //     5: 3rd twelve
+//     6: 1-18
+//     7: 19-36
+//     8: MOD 1
+//     9: MOD 2
+//     10: MOD 3
 
 vector<pair<int, int>> check_hovered(int x, int y)
 {
