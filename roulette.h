@@ -47,7 +47,7 @@ public:
     player *connected_player;
     vector<pair<int, int>> bet_number; // winning set (number, color)
 };
-void check_win();
+void check_win(pair<int, int>);
 void player_bet(player &now_player);
 void create_roulette_game(vector<player>);
 void init_roulette_resources();
@@ -56,4 +56,6 @@ void init_chip_drawing_set();
 string check_potential_chip_selection(int, int);
 vector<pair<int, int>> check_hovered(int, int);
 int bet_amount(int);
+void draw_chip_in_hand();
+pair<int, int> start_spinning();
 #endif
