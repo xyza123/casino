@@ -435,7 +435,7 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
             if (all_player[i].AI_budget > 0)
             {
                 AI_win_rate = check_win_rate(current_round, all_player[i].own);
-                select = AI_select(antes, AI_win_rate, all_player[i].AI_budget);
+                select = AI_select(antes, AI_win_rate, all_player[i]);
             }
         }
         if (select == FOLD)
@@ -565,16 +565,6 @@ int select_raise_amount(Texas_player p)
     return p.bet_amount;
 }
 
-int AI_select_raise_amount(int budget_amount, double win_rate, int antes)
-{
-    return 1;
-}
-
-int AI_select(int now_antes, double win_rate, int goal_antes)
-{
-    return 0;
-}
-
 void update_player_status(vector<Texas_player> players)
 {
     for (auto p : players)
@@ -660,34 +650,40 @@ void draw_texas_bg(int status)
         al_draw_bitmap(bg_all_in, 0, 0, 0);
 }
 
-// int AI_select_raise_amount(int budget_amount, double win_rate, int antes){
-//     if(win_rate <= 0.7){
-//         if(antes >= budget_amount)
-//             return antes * 0.5;
-//         return budget_amount * 0.3;
-//     }
-//     if(win_rate <= 0.8){
-//         if(antes >= budget_amount)
-//             return antes * 0.7;
-//         return budget_amount * 0.6;
-//     }
-//     if(win_rate <= 0.9){
-//         if(antes >= budget_amount)
-//             return antes * 1;
-//         return budget_amount * 0.8;
-//     }
-// }
+int AI_select_raise_amount(int budget_amount, double win_rate, int antes){
+    if(win_rate <= 0.7){
+        if(antes >= budget_amount)
+            return antes * 1.5;
+        return budget_amount * 0.3 + antes;
+    }
+    if(win_rate <= 0.8){
+        if(antes >= budget_amount)
+            return antes * 1.7;
+        return budget_amount * 0.6 + antes;
+    }
+    if(win_rate <= 0.9){
+        if(antes >= budget_amount)
+            return antes * 2;
+        return budget_amount * 0.8 + antes;
+    }
+}
 
-// int AI_select(int now_antes,double win_rate, int goal_antes)
-// {
-//     if(win_rate <= 0.2)
-//         return FOLD;
-//     if(win_rate <= 0.6 && goal_antes == now_antes)
-//         return CALL;
-//     if(win_rate <= 0.9)
-//         return RAISE;
-//     return ALL_IN;
-// }
+int AI_select(int now_antes,double win_rate, Texas_player now_AI)
+{
+    srand(time(NULL));
+    int randint = rand();
+    randint %= 100;
+    double p = randint / 100;
+    win_rate = win_rate / 2 + p / 2;
+    int goal_antes = (now_AI.AI_budget + now_AI.bet_amount) * win_rate;
+    if(win_rate <= 0.2)
+        return FOLD;
+    if(win_rate <= 0.6 && goal_antes < now_antes)
+        return CALL;
+    if(win_rate <= 0.9)
+        return RAISE;
+    return ALL_IN;
+}
 
 double check_win_rate(int current_round, card_set now_card){
     double win_rate;
