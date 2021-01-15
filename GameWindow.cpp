@@ -246,7 +246,7 @@ int GameWindow::game_run()
     }
     else if (window == ROULETTE)
     {
-        al_start_timer(roulette_timer);
+        // al_start_timer(roulette_timer);
         judge_next_window[5] = false;
         draw_roulette_table();
         if (!al_is_event_queue_empty(event_queue))
@@ -637,11 +637,17 @@ int GameWindow::Texas_event()
     // draw_texas_table(CHECK);
     return instruction;
 }
+
 int GameWindow::Roulette_event()
 {
     int instruction = GAME_CONTINUE;
     if (game_mode == SINGLE)
     {
+        player sg_player("Visitor", "1111", 100000, -1, 1);
+        sg_player.is_main_user = true;
+        vector<player> player_list;
+        player_list.push_back(sg_player);
+        create_roulette_game(player_list);
     }
     else if (game_mode == MULTI)
     {

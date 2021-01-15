@@ -5,6 +5,7 @@
 #include <string>
 #include <time.h>
 #include "Texas.h"
+#include "roulette.h"
 #include "global.h"
 #define GAME_INIT -1
 #define GAME_SETTING 0
