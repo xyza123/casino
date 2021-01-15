@@ -46,7 +46,6 @@ void Texas_player::add_bet(int amount)
 void return_money(int winner, int amount)
 {
     all_player[winner].connected_player->budget += amount;
-    all_player.clear();
     return;
 }
 
@@ -153,32 +152,170 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
 }
 void endgame(int round)
 {
+    int total_return_money = 0;
+    for(int i=0;i<all_player.size();i++)
+        total_return_money += all_player[i].bet_amount;
     if(round != 4){
         int winner;
         for(int i=0;i<all_player.size();i++){
             if(all_player[i].status)
                 winner = i;
         }
-        int total_return_money = 0;
-        for(int i=0;i<all_player.size();i++)
-            total_return_money += all_player[i].bet_amount;
         return_money(winner, total_return_money);
         return;
     }
-    //sort(all_player.begin(), all_player.end(), card_set_compare);
+    sort(all_player.begin(), all_player.end(), card_set_compare);
+    int now_player = 0;
+    while(1){
+        if(all_player[now_player].status){
+            int will_get = all_player[now_player].bet_amount * all_player.size();
+            if(will_get >= total_return_money){
+                return_money(now_player, total_return_money);
+                break;
+            }
+            else{
+                total_return_money -= will_get;
+                return_money(now_player, will_get);
+                now_player++;
+            }
+        }
+    }
     return;
 }
 
-// int card_set_compare(Texas_player &a, Texas_player &b){
-//     card_set A = a.own;
-//     card_set B = b.own;
-//     for(int i=0;i<on_board.card_set.size();i++){
-
-//     }
-//     pair<bool, int> now_compare_A = straight_flush(A);
-//     pair<bool, int> now_compare_B = straight_flush(B);
-    
-// }
+int card_set_compare(Texas_player &a, Texas_player &b){
+    card_set A = a.own;
+    card_set B = b.own;
+    for(int i=0;i<on_board.card_set.size();i++)
+        A.card_set.push_back(on_board.card_set[i]);
+    pair<int, int> compare_A;
+    pair<int, int> compare_B;
+    for(int i=0;i<6;i++){
+        for(int j=i+1;j<7;j++){
+            card_set copy_set_A = A;
+            card_set copy_set_B = B;
+            card_set real_set_A;
+            card_set real_set_B;
+            copy_set_A.card_set[i].point = -1;
+            copy_set_A.card_set[j],point = -1;
+            copy_set_B.card_set[i].point = -1;
+            copy_set_B.card_set[j],point = -1;
+            pair<int, int> now_compare_A = {0,0};
+            pair<int, int> now_compare_B = {0,0};
+            for(int k=0;k<7;k++){
+                if(copy_set_A.card_set[k].point != -1)
+                    real_set_A.push_back(copy_set_A.card_set[k]);
+                if(copy_set_B.card_set[k].point != -1)
+                    real_set_B.push_back(copy_set_B.card_set[k]);
+            }
+            while(1){
+                if(straight_flush(real_set_A).first){
+                    now_compare_A.first = 8;
+                    now_compare_A.second = straight_flush(real_set_A).second;
+                    break;
+                }
+                if(four_of_a_kind(real_set_A).first){
+                    now_compare_A.first = 7;
+                    now_compare_A.second = four_of_a_kind(real_set_A).second;
+                    break;
+                }
+                if(full_house(real_set_A).first){
+                    now_compare_A.first = 6;
+                    now_compare_A.second = full_house(real_set_A).second;
+                    break;
+                }
+                if(flush(real_set_A).first){
+                    now_compare_A.first = 5;
+                    now_compare_A.second = flush(real_set_A).second;
+                    break;
+                }
+                if(straight(real_set_A).first){
+                    now_compare_A.first = 4;
+                    now_compare_A.second = straight(real_set_A).second;
+                    break;
+                }
+                if(three_of_a_kind(real_set_A).first){
+                    now_compare_A.first = 3;
+                    now_compare_A.second = three_of_a_kind(real_set_A).second;
+                    break;
+                }
+                if(two_pair(real_set_A).first){
+                    now_compare_A.first = 2;
+                    now_compare_A.second = two_pair(real_set_A).second;
+                    break;
+                }
+                if(one_pair(real_set_A).first){
+                    now_compare_A.first = 1;
+                    now_compare_A.second = one_pair(real_set_A).second;
+                    break;
+                }
+                if(high_card(real_set_A).first){
+                    now_compare_A.first = 0;
+                    now_compare_A.second = high_card(real_set_A).second;
+                    break;
+                }
+            }
+            while(1){
+                if(straight_flush(real_set_B).first){
+                    now_compare_B.first = 8;
+                    now_compare_B.second = straight_flush(real_set_B).second;
+                    break;
+                }
+                if(four_of_a_kind(real_set_B).first){
+                    now_compare_B.first = 7;
+                    now_compare_B.second = four_of_a_kind(real_set_B).second;
+                    break;
+                }
+                if(full_house(real_set_B).first){
+                    now_compare_B.first = 6;
+                    now_compare_B.second = full_house(real_set_B).second;
+                    break;
+                }
+                if(flush(real_set_B).first){
+                    now_compare_B.first = 5;
+                    now_compare_B.second = flush(real_set_B).second;
+                    break;
+                }
+                if(straight(real_set_B).first){
+                    now_compare_B.first = 4;
+                    now_compare_B.second = straight(real_set_B).second;
+                    break;
+                }
+                if(three_of_a_kind(real_set_B).first){
+                    now_compare_B.first = 3;
+                    now_compare_B.second = three_of_a_kind(real_set_B).second;
+                    break;
+                }
+                if(two_pair(real_set_B).first){
+                    now_compare_B.first = 2;
+                    now_compare_B.second = two_pair(real_set_B).second;
+                    break;
+                }
+                if(one_pair(real_set_B).first){
+                    now_compare_B.first = 1;
+                    now_compare_B.second = one_pair(real_set_B).second;
+                    break;
+                }
+                if(high_card(real_set_B).first){
+                    now_compare_B.first = 0;
+                    now_compare_B.second = high_card(real_set_B).second;
+                    break;
+                }
+            }
+            if(now_compare_A.first > compare_A.first || (now_compare_A.first == compare_A.first && compare_A.second < now_compare_A.second)){
+                compare_A.first = now_compare_A.first;
+                compare_A.second = now_compare_A.second;
+            }
+            if(now_compare_B.first > compare_B.first || (now_compare_B.first == compare_B.first && compare_B.second < now_compare_B.second)){
+                compare_B.first = now_compare_B.first;
+                compare_B.second = now_compare_B.second;
+            }
+        }
+    }
+    if(compare_A.first > compare_B.first || compare_A.first == compare_B.first && compare_A.second > compare_B.second)
+        return 1;
+    return 0;
+}
 
 bool check_termination()
 {
