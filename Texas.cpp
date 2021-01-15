@@ -265,46 +265,6 @@ bool check_termination()
     return true;
 }
 
-// int bet_round(int antes, int current_round)
-// {
-//     int select;
-//     for (int i = 0; i < all_player.size(); i++)
-//     {
-//         if (!all_player[i].AI)
-//         {
-//             judge_status(all_player[i], antes);
-//             select = player_select(current_round, all_player[i]); //check...
-//         }
-//         else
-//             select = AI_select(current_round);
-//         if (select == FOLD)
-//         {
-//             all_player[i].status = false;
-//             update_player_status(all_player);
-//         }
-//         else if (select == RAISE)
-//         {
-//             if (!all_player[i].AI)
-//             {
-//                 int raise_amount = select_raise_amount(all_player[i]); //
-//                 all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
-//                 antes = raise_amount;
-//             }
-//             else
-//             {
-//                 int raise_amount = AI_select_raise_amount(); //
-//                 all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
-//                 antes = raise_amount;
-//             }
-//         }
-//         else if (select == CALL)
-//         {
-//             all_player[i].add_bet(antes - all_player[i].bet_amount);
-//             update_player_status(all_player);
-//         }
-//     }
-//     return antes;
-// }
 pair<int, int> bet_round(int antes, int current_round, int now_player, int count)
 {
     int i = now_player;
