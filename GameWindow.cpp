@@ -248,7 +248,7 @@ int GameWindow::game_run()
     }
     else if (window == ROULETTE)
     {
-        // al_start_timer(roulette_timer);
+        al_start_timer(roulette_timer);
         judge_next_window[5] = false;
         draw_roulette_table();
         al_flip_display();
