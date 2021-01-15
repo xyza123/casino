@@ -52,7 +52,7 @@ bool check_termination(void);
 void endgame(int);
 void judge_status(Texas_player &, int);
 int player_select(Texas_player &);
-int AI_select(int, double, int);
+int AI_select(int, double, Texas_player);
 void create_game(vector<player> &, int, int, int, int);
 void update_player_status(vector<Texas_player>);
 void update_board(card_set);
