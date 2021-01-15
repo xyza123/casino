@@ -22,6 +22,7 @@ ALLEGRO_BITMAP *selection_window = NULL;
 ALLEGRO_BITMAP *bg_call = NULL;
 ALLEGRO_BITMAP *bg_check = NULL;
 ALLEGRO_BITMAP *bg_all_in = NULL;
+ALLEGRO_BITMAP *msg_bubble = NULL;
 void Texas_player::add_bet(int amount)
 {
     if (!AI)
@@ -413,3 +414,7 @@ double check_win_rate(card_set c)
 {
     return 1;
 }
+
+// void draw_AI_selection()
+// {
+// }
