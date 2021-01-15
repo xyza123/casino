@@ -16,7 +16,9 @@ card_set on_board;
 card_set aboundant;
 deck pool;
 int on_board_money;
-map<pair<int, int>, ALLEGRO_BITMAP *> poker_img; // poker_img[{point, color}] = bitmap
+bool all_rounds_over = false;
+map<pair<int, int>, ALLEGRO_BITMAP *> poker_img;       // poker_img[{point, color}] = bitmap
+map<pair<int, int>, ALLEGRO_BITMAP *> small_poker_img; // poker_img[{point, color}] = bitmap
 ALLEGRO_BITMAP *info = NULL;
 ALLEGRO_BITMAP *selection_window = NULL;
 ALLEGRO_BITMAP *bg_call = NULL;
@@ -151,11 +153,15 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
         if (flag)
             break;
     }
+    all_rounds_over = true;
+    update_player_status(all_player);
+    al_rest(5);
     endgame();
     return;
 }
 void endgame()
 {
+    // clear all player and the card set on board
 }
 
 bool check_termination()
@@ -360,8 +366,16 @@ void update_player_status(vector<Texas_player> players)
             }
             else
             {
-                al_draw_bitmap(poker_img[{0, 0}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
-                al_draw_bitmap(poker_img[{0, 0}], p.pos_x, p.pos_y - player_card_height, 0);
+                if (all_rounds_over)
+                {
+                    al_draw_bitmap(small_poker_img[{p.own.card_set[0].point, p.own.card_set[0].color}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
+                    al_draw_bitmap(small_poker_img[{p.own.card_set[1].point, p.own.card_set[1].color}], p.pos_x, p.pos_y - player_card_height, 0);
+                }
+                else
+                {
+                    al_draw_bitmap(poker_img[{0, 0}], p.pos_x - player_card_width, p.pos_y - player_card_height, 0);
+                    al_draw_bitmap(poker_img[{0, 0}], p.pos_x, p.pos_y - player_card_height, 0);
+                }
             }
         }
     }
@@ -387,9 +401,11 @@ void init_poker_imgs()
         for (int j = 1; j <= 4; j++)
         {
             string s = "./card_set/" + to_string(i) + "_" + to_string(j) + ".png";
+            string s1 = "./ai_card_set/" + to_string(i) + "_" + to_string(j) + ".png";
             ALLEGRO_BITMAP *card = al_load_bitmap(s.c_str());
+            ALLEGRO_BITMAP *card1 = al_load_bitmap(s1.c_str());
             poker_img[{i, j}] = card;
-            cout << s << endl;
+            small_poker_img[{i, j}] = card1;
         }
     }
     ALLEGRO_BITMAP *card = al_load_bitmap("./card_set/red_back.png");
