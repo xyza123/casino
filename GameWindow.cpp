@@ -217,6 +217,8 @@ int GameWindow::game_run()
             {
                 window = ROULETTE;
                 roulette_timer = al_create_timer(1.0 / FPS);
+                roulette_table = al_load_bitmap("./roulette_board.png");
+                roulette = al_load_bitmap("./roulette.png");
                 al_register_event_source(event_queue, al_get_timer_event_source(roulette_timer));
             }
             else if (judge_next_window[6])
@@ -249,6 +251,7 @@ int GameWindow::game_run()
         // al_start_timer(roulette_timer);
         judge_next_window[5] = false;
         draw_roulette_table();
+        al_flip_display();
         if (!al_is_event_queue_empty(event_queue))
         {
             error = Roulette_event();
@@ -717,5 +720,6 @@ void GameWindow::draw_texas_table(int status)
 
 void GameWindow::draw_roulette_table()
 {
-    return;
+    al_draw_bitmap(roulette_table, 0, 0, 0);
+    al_draw_rotated_bitmap(roulette, 600, 598, -50, window_height + 100, 0, 0);
 }

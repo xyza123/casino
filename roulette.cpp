@@ -1,9 +1,22 @@
 #include "roulette.h"
-#include "global.h"
+#include <iostream>
+using namespace std;
+int gambling_odd[9] = {35, 17, 11, 8, 1, 1, 2, 2, 1}; //賠率
+
 // vector<player> all_player;
 roulettle now_game;
 vector<roulettle_bet> all_bet;
 vector<pair<int, int>> bet_postion;
+ALLEGRO_BITMAP *roulette = NULL;
+ALLEGRO_BITMAP *roulette_board = NULL;
+ALLEGRO_BITMAP *rchip = NULL;
+ALLEGRO_BITMAP *gchip = NULL;
+ALLEGRO_BITMAP *bchip = NULL;
+ALLEGRO_BITMAP *bkchip = NULL;
+ALLEGRO_BITMAP *rfchip = NULL;
+ALLEGRO_BITMAP *gfchip = NULL;
+ALLEGRO_BITMAP *bfchip = NULL;
+ALLEGRO_BITMAP *bkfchip = NULL;
 int bet_length;
 enum
 {
@@ -137,11 +150,15 @@ roulettle_bet::roulettle_bet(int amount, int type, vector<pair<int, int>> bet_nu
     bet_number = bet_number;
 }
 
-void create_roulettle_game(vector<player> all_player)
+void create_roulette_game(vector<player> all_player)
 {
+    cout << "check point 1" << endl;
+    init_roulette_resources();
     for (int i = 0; i < all_player.size(); i++)
     {
+        cout << "hi";
         player now_player = all_player[i];
+        cout << "passed" << endl;
         player_bet(now_player);
     }
     //check_win();
@@ -160,6 +177,7 @@ void player_bet(player &now_player)
     int count_spinning = 0;
     while (!done)
     {
+        cout << "I'm in!" << endl;
         /*do
         {
             al_wait_event(event_queue, &event);
@@ -212,6 +230,9 @@ void player_bet(player &now_player)
                 break;
             }
         }
+        draw_roulette_table();
+        al_draw_rotated_bitmap(roulette, 600, 598, -50, window_height + 100, deg * 3.14159 / 180, 0);
+        al_flip_display();
         // if (status)
         // {
         //     if (mouse_position == in_board)
@@ -258,4 +279,22 @@ int check_mouse_range(int mouse_x, int mouse_y)
     // if (is_in_board_range())
     //     return in_board;
     // return nothing;
+}
+void draw_roulette_table()
+{
+    al_draw_bitmap(roulette_board, 0, 0, 0);
+}
+void init_roulette_resources()
+{
+    roulette = al_load_bitmap("./roulette.png");
+    roulette_board = al_load_bitmap("./roulette_board.png");
+    rchip = al_load_bitmap("./chip_set/rchip.png");
+    bchip = al_load_bitmap("./chip_set/bchip.png");
+    bkchip = al_load_bitmap("./chip_set/bkchip.png");
+    gchip = al_load_bitmap("./chip_set/gchip.png");
+    rfchip = al_load_bitmap("./chip_set/rfChip.png");
+    gfchip = al_load_bitmap("./chip_set/gfChip.png");
+    bfchip = al_load_bitmap("./chip_set/bfChip.png");
+    bkfchip = al_load_bitmap("./chip_set/kfChip.png");
+    cout << "load complete" << endl;
 }

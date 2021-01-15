@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include "player.h"
+#include "global.h"
 using namespace std;
 enum
 {
@@ -10,9 +11,6 @@ enum
     red,
     black
 };
-
-int gambling_odd[9] = {35, 17, 11, 8, 1, 1, 2, 2, 1}; //賠率
-
 enum
 {
     single, //1
@@ -45,4 +43,6 @@ public:
 void check_win();
 void player_bet(player &now_player);
 void create_roulette_game(vector<player>);
+void init_roulette_resources();
+void draw_roulette_table();
 #endif
