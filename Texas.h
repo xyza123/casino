@@ -18,6 +18,7 @@ public:
     }
     Texas_player(player &now_player, int antes)
     {
+        now_player.budget -= antes;
         connected_player = &now_player;
         bet_amount = antes;
         status = 1;
@@ -46,7 +47,7 @@ bool check_termination(void);
 void endgame(int);
 void judge_status(Texas_player &, int);
 int player_select(Texas_player &);
-int AI_select(int, double, Texas_player);
+int AI_select(int, double&, Texas_player);
 void create_game(vector<player> &, int, int, int, int);
 void update_player_status(vector<Texas_player>);
 void update_board(card_set);
@@ -65,4 +66,5 @@ pair<bool, int> two_pair(card_set);
 pair<bool, int> one_pair(card_set);
 pair<bool, int> high_card(card_set);
 int double_check(card_set, card_set, int, int);
+void draw_AI_selection(Texas_player, int);
 #endif //TEXAS_H_INCLUDED

@@ -58,6 +58,7 @@ void return_money(int winner, int amount)
 
 void create_game(vector<player> &all, int antes, int AI_number, int player_number, int AI_budget)
 {
+    all_rounds_over = false;
     init_poker_imgs();
     user_name = all.front().account;
     user_budget = all.front().budget;
@@ -66,6 +67,7 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
     for (int i = 0; i < player_number; i++)
     {
         Texas_player now(all[i], antes);
+        cout << "now.connected_player->budget: " << now.connected_player->budget << '\n';
         all_player.push_back(now);
     }
     for (int i = 0; i < AI_number; i++)
@@ -119,6 +121,8 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
                 now_player++;
                 if (now_player == all_player.size())
                     now_player = 0;
+                cout << "count:" << count << '\n';
+                cout << "now_round:" << now_round << '\n';
             }
             draw_texas_bg(CHECK);
             update_player_status(all_player);
@@ -152,6 +156,8 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
                 now_player++;
                 if (now_player == all_player.size())
                     now_player = 0;
+                cout << "count:" << count << '\n';
+                cout << "now_round:" << now_round << '\n';
             }
             draw_texas_bg(CHECK);
             update_player_status(all_player);
@@ -163,10 +169,10 @@ void create_game(vector<player> &all, int antes, int AI_number, int player_numbe
             break;
     }
     all_rounds_over = true;
+    endgame(now_round);
     update_board(on_board);
     update_player_status(all_player);
     al_rest(3);
-    endgame(now_round);
     return;
 }
 
@@ -206,6 +212,10 @@ void endgame(int round)
             }
         }
     }
+    pool.refresh_deck();
+    on_board.card_set.clear();
+    all_player.clear();
+    //al_rest(100);
     return;
 }
 
@@ -510,6 +520,8 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
                 AI_win_rate = check_win_rate(current_round, all_player[i].own);
                 select = AI_select(antes, AI_win_rate, all_player[i]);
                 cout << select << " 1" << endl;
+                draw_AI_selection(all_player[i], select);
+                al_rest(1);
             }
         }
         if (select == FOLD)
@@ -524,7 +536,8 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
             if (!all_player[i].AI)
                 raise_amount = select_raise_amount(all_player[i]); //
             else
-                int raise_amount = AI_select_raise_amount(all_player[i].AI_budget, AI_win_rate, antes); //
+                raise_amount = AI_select_raise_amount(all_player[i].AI_budget, AI_win_rate, antes); //
+            cout << "raise_amount: " << raise_amount << '\n';
             all_player[i].add_bet(raise_amount - all_player[i].bet_amount);
             antes = raise_amount;
             draw_texas_bg(CALL);
@@ -544,8 +557,10 @@ pair<int, int> bet_round(int antes, int current_round, int now_player, int count
             else
                 all_player[i].add_bet(all_player[i].AI_budget);
             amount = all_player[i].bet_amount;
-            if (amount > antes)
+            if (amount > antes){
+                count = 0;
                 antes = amount;
+            }
         }
         return {antes, count + 1};
     }
@@ -746,37 +761,54 @@ void draw_texas_bg(int status)
 
 int AI_select_raise_amount(int budget_amount, double win_rate, int antes)
 {
+    cout << "budget_amount: " << budget_amount << '\n';
+    cout << "win_rate: " << win_rate << '\n';
+    cout << "antes: " << antes << '\n';
     if (win_rate <= 0.7)
     {
-        if (antes >= budget_amount)
-            return antes * 1.5;
-        return budget_amount * 0.3 + antes;
+        if (antes <= double(budget_amount)*1.5){
+            cout << "1:" << "raise_amount" << int(double(antes * 1.5)) << '\n';
+            return int(double(antes * 1.5));
+        }
+        cout << "2:" << "raise_amount" << int(double(budget_amount) * 0.3 + double(antes)) << '\n';
+        return int(double(budget_amount) * 0.3 + double(antes));
     }
     if (win_rate <= 0.8)
     {
-        if (antes >= budget_amount)
-            return antes * 1.7;
-        return budget_amount * 0.6 + antes;
+        if (antes <= double(budget_amount) * 1.7){
+            cout << "3:" << "raise_amount" << int(double(antes) * 1.7) << '\n';
+            return int(double(antes) * 1.7);
+        }
+        cout << "4:" << "raise_amount" << int(double(budget_amount) * 0.6 + double(antes)) << '\n';
+
+        return int(double(budget_amount) * 0.6 + double(antes));
     }
     if (win_rate <= 0.9)
     {
-        if (antes >= budget_amount)
+        if (antes <= budget_amount * 2){
+            cout << "5:" << "raise_amount" << antes * 2 << '\n';
             return antes * 2;
-        return budget_amount * 0.8 + antes;
+        }
+        cout << "5:" << "raise_amount" << int(double(budget_amount) * 0.8 + double(antes)) << '\n';
+        return int(double(budget_amount) * 0.8 + double(antes));
     }
 }
 
-int AI_select(int now_antes, double win_rate, Texas_player now_AI)
+int AI_select(int now_antes, double& win_rate, Texas_player now_AI)
 {
     srand(time(NULL));
     int randint = rand();
     randint %= 100;
-    double p = randint / 100;
-    win_rate = win_rate / 2 + p / 2;
+    double p = double(randint) / 100;
+    cout << "calculate rate: " << win_rate << '\n';
+    win_rate = win_rate * 0.7 + p * 0.3;
+    cout << "randint: " << randint << '\n';
+    cout << "p: " <<  p << '\n';
+    cout << "win_rate:" << win_rate << '\n';
     int goal_antes = (now_AI.AI_budget + now_AI.bet_amount) * win_rate;
-    if (win_rate <= 0.2)
+    if (win_rate <= 0.3)
         return FOLD;
-    if (win_rate <= 0.6 && goal_antes < now_antes)
+    if (win_rate <= 0.6 || goal_antes < now_antes)
         return CALL;
     if (win_rate <= 0.9)
         return RAISE;
@@ -788,7 +820,8 @@ double check_win_rate(int current_round, card_set now_card)
     double win_rate;
     int score = 0;
     if (current_round == 0)
-    {
+    {   
+        
         now_card.sort_out();
         if (now_card.card_set[0].color == now_card.card_set[1].color)
             score += 200;
@@ -1087,7 +1120,8 @@ double check_win_rate(int current_round, card_set now_card)
             score += now_card.card_set[1].point * 15;
         }
     }
-    win_rate = score / 100;
+    cout << "score: " << score << '\n';
+    win_rate = double(score) / 1000;
     if (win_rate > 1)
         win_rate = 1;
     return win_rate;
@@ -1251,4 +1285,22 @@ pair<bool, int> high_card(card_set now_card_set)
 {
     now_card_set.sort_out();
     return {true, now_card_set.card_set[4].point};
+}
+
+void draw_AI_selection(Texas_player p, int selection)
+{
+    string str = "error";
+    if (selection == CALL)
+        str = "CALL";
+    else if (selection == FOLD)
+        str = "FOLD";
+    else if (selection == ALL_IN)
+        str = "ALL_IN";
+    else if (selection == CHECK)
+        str = "CHECK";
+    else if (selection == RAISE)
+        str = "RAISE";
+    al_draw_bitmap(msg_bubble, p.pos_x - 170, p.pos_y - 150, 0);
+    al_draw_textf(Large_font, al_map_rgb(0, 0, 0), p.pos_x - 70, p.pos_y - 90, ALLEGRO_ALIGN_CENTRE, "%s", str.c_str());
+    al_flip_display();
 }
