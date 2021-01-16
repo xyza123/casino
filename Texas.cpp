@@ -1252,3 +1252,21 @@ pair<bool, int> high_card(card_set now_card_set)
     now_card_set.sort_out();
     return {true, now_card_set.card_set[4].point};
 }
+
+void draw_AI_selection(Texas_player p, int selection)
+{
+    string str = "error";
+    if (selection == CALL)
+        str = "CALL";
+    else if (selection == FOLD)
+        str = "FOLD";
+    else if (selection == ALL_IN)
+        str = "ALL_IN";
+    else if (selection == CHECK)
+        str = "CHECK";
+    else if (selection == RAISE)
+        str = "RAISE";
+    al_draw_bitmap(msg_bubble, p.pos_x - 170, p.pos_y - 150, 0);
+    al_draw_textf(Large_font, al_map_rgb(0, 0, 0), p.pos_x - 70, p.pos_y - 90, ALLEGRO_ALIGN_CENTRE, "%s", str.c_str());
+    al_flip_display();
+}

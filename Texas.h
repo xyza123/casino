@@ -65,4 +65,5 @@ pair<bool, int> two_pair(card_set);
 pair<bool, int> one_pair(card_set);
 pair<bool, int> high_card(card_set);
 int double_check(card_set, card_set, int, int);
+void draw_AI_selection(Texas_player, int)
 #endif //TEXAS_H_INCLUDED
